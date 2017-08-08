@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
@@ -17,5 +18,10 @@ namespace FileOptics.Interface
 
         public static void AppendNode(InfoNode i, InfoNode super) { _base.AppendNode(i, super); }
         public static void AppendNode(InfoNode i, RootInfoNode super) { _base.AppendNode(i, super); }
+
+        public static void SimpleWrite(RootInfoNode i, Stream outp)
+        {
+
+        }
     }
 }
