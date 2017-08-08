@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace FileOptics.Interface
+{
+    public enum InfoType
+    {
+        Generic, //GenericInfo
+        Text, //string
+        Image, //Image
+        ImageStream, //Stream
+        PositionInHexBox, //int
+        Table, //TableInfo
+        List, //ListInfo
+        Delegate, //Action/Delegate
+        None
+    }
+}
