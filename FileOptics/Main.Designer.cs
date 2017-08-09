@@ -30,21 +30,21 @@
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tree = new System.Windows.Forms.TreeView();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pInfoGeneric = new System.Windows.Forms.Panel();
-            this.lblInfoGenericTitle = new System.Windows.Forms.Label();
             this.txtInfoGenericBody = new System.Windows.Forms.TextBox();
+            this.lblInfoGenericTitle = new System.Windows.Forms.Label();
             this.hexBox1 = new HexBoxLib.HexBox();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.pInfoGeneric.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -83,22 +83,6 @@
             this.tree.TabIndex = 0;
             this.tree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tree_AfterSelect);
             // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuFile});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1144, 24);
-            this.menuStrip1.TabIndex = 1;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // menuFile
-            // 
-            this.menuFile.Name = "menuFile";
-            this.menuFile.Size = new System.Drawing.Size(37, 20);
-            this.menuFile.Text = "File";
-            // 
             // splitContainer2
             // 
             this.splitContainer2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -132,16 +116,6 @@
             this.pInfoGeneric.TabIndex = 0;
             this.pInfoGeneric.Visible = false;
             // 
-            // lblInfoGenericTitle
-            // 
-            this.lblInfoGenericTitle.AutoSize = true;
-            this.lblInfoGenericTitle.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblInfoGenericTitle.Location = new System.Drawing.Point(4, 8);
-            this.lblInfoGenericTitle.Name = "lblInfoGenericTitle";
-            this.lblInfoGenericTitle.Size = new System.Drawing.Size(47, 19);
-            this.lblInfoGenericTitle.TabIndex = 0;
-            this.lblInfoGenericTitle.Text = "Title";
-            // 
             // txtInfoGenericBody
             // 
             this.txtInfoGenericBody.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -157,6 +131,16 @@
             this.txtInfoGenericBody.TabIndex = 1;
             this.txtInfoGenericBody.Text = "Body text";
             // 
+            // lblInfoGenericTitle
+            // 
+            this.lblInfoGenericTitle.AutoSize = true;
+            this.lblInfoGenericTitle.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblInfoGenericTitle.Location = new System.Drawing.Point(4, 8);
+            this.lblInfoGenericTitle.Name = "lblInfoGenericTitle";
+            this.lblInfoGenericTitle.Size = new System.Drawing.Size(47, 19);
+            this.lblInfoGenericTitle.TabIndex = 0;
+            this.lblInfoGenericTitle.Text = "Title";
+            // 
             // hexBox1
             // 
             this.hexBox1.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
@@ -170,6 +154,22 @@
             this.hexBox1.Size = new System.Drawing.Size(646, 414);
             this.hexBox1.TabIndex = 0;
             this.hexBox1.Text = "hexBox1";
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuFile});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1144, 24);
+            this.menuStrip1.TabIndex = 1;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // menuFile
+            // 
+            this.menuFile.Name = "menuFile";
+            this.menuFile.Size = new System.Drawing.Size(37, 20);
+            this.menuFile.Text = "File";
             // 
             // Main
             // 
@@ -185,13 +185,13 @@
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.ResumeLayout(false);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             this.splitContainer2.ResumeLayout(false);
             this.pInfoGeneric.ResumeLayout(false);
             this.pInfoGeneric.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -205,9 +205,9 @@
         internal System.Windows.Forms.SplitContainer splitContainer1;
         internal System.Windows.Forms.TreeView tree;
         internal System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.Panel pInfoGeneric;
-        private System.Windows.Forms.Label lblInfoGenericTitle;
-        private System.Windows.Forms.TextBox txtInfoGenericBody;
+        internal System.Windows.Forms.Label lblInfoGenericTitle;
+        internal System.Windows.Forms.TextBox txtInfoGenericBody;
+        internal System.Windows.Forms.Panel pInfoGeneric;
     }
 }
 

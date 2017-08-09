@@ -12,7 +12,7 @@ namespace FileOptics
 {
     public partial class Main : Form
     {
-        List<Panel> infopanels = new List<Panel>();
+        public List<Panel> infopanels = new List<Panel>();
         public Main()
         {
             InitializeComponent();
@@ -156,17 +156,19 @@ namespace FileOptics
                 hexBox1.ScrollTo((int)(inode.DataStart >> 4));
                 hexBox1.Invalidate();
 
-                foreach (Panel p in infopanels)
-                    p.Visible = false;
+                //foreach (Panel p in infopanels)
+                //    p.Visible = false;
 
-                switch (inode.IType)
-                {
-                    case InfoType.Generic:
-                        lblInfoGenericTitle.Text = ((GenericInfo)inode.Info).Title;
-                        txtInfoGenericBody.Text = ((GenericInfo)inode.Info).Body;
-                        pInfoGeneric.Visible = true;
-                        break;
-                }
+                //switch (inode.IType)
+                //{
+                //    case InfoType.Generic:
+                //        lblInfoGenericTitle.Text = ((GenericInfo)inode.Info).Title;
+                //        txtInfoGenericBody.Text = ((GenericInfo)inode.Info).Body;
+                //        pInfoGeneric.Visible = true;
+                //        break;
+                //}
+
+                Bridge.ShowInfo(inode);
             }
         }
     }

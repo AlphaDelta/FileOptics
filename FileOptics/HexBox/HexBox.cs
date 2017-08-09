@@ -171,7 +171,7 @@ namespace HexBoxLib
 
         public void ReadFile(string path)
         {
-            ReadStream(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+            ReadStream(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read));
         }
 
         public void ReadBytes(byte[] bytes)
