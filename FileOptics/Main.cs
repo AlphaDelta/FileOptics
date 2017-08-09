@@ -129,6 +129,8 @@ namespace FileOptics
 
                 hexBox1.ReadFile(rin.FilePath);
                 fileloaded = rin.FilePath;
+
+                Bridge.ShowInfo(rin.IType, rin.Info);
             }
             else
             {
@@ -168,7 +170,7 @@ namespace FileOptics
                 //        break;
                 //}
 
-                Bridge.ShowInfo(inode);
+                Bridge.ShowInfo(inode.IType, inode.Info);
             }
         }
     }

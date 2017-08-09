@@ -11,7 +11,7 @@ namespace FileOptics.Interface
         void AppendNode(InfoNode i, InfoNode super);
         void AppendNode(InfoNode i, RootInfoNode super);
 
-        void ShowInfo(InfoNode node);
+        void ShowInfo(InfoType type, object info);
         void ShowPanel(InfoType type);
     }
 }

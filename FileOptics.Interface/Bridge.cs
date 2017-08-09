@@ -19,7 +19,7 @@ namespace FileOptics.Interface
         public static void AppendNode(InfoNode i, InfoNode super) { _base.AppendNode(i, super); }
         public static void AppendNode(InfoNode i, RootInfoNode super) { _base.AppendNode(i, super); }
 
-        public static void ShowInfo(InfoNode i) { _base.ShowInfo(i); }
+        public static void ShowInfo(InfoType t, object i) { _base.ShowInfo(t, i); }
         public static void ShowPanel(InfoType t) { _base.ShowPanel(t); }
 
         public static void SimpleWrite(RootInfoNode i, Stream outp)

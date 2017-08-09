@@ -29,17 +29,20 @@ namespace FileOptics
         }
 
 
-        public void ShowInfo(InfoNode inode)
+        public void ShowInfo(InfoType type, object info)
         {
-            switch (inode.IType)
+            switch (type)
             {
                 case InfoType.Generic:
-                    main.lblInfoGenericTitle.Text = ((GenericInfo)inode.Info).Title;
-                    main.txtInfoGenericBody.Text = ((GenericInfo)inode.Info).Body;
+                    main.lblInfoGenericTitle.Text = ((GenericInfo)info).Title;
+                    main.txtInfoGenericBody.Text = ((GenericInfo)info).Body;
+                    break;
+                case InfoType.ImageFile:
+                    main.imgInfo.Load((string)info);
                     break;
             }
 
-            ShowPanel(inode.IType);
+            ShowPanel(type);
         }
 
         public void ShowPanel(InfoType type)
@@ -48,9 +51,13 @@ namespace FileOptics
             switch (type)
             {
                 case InfoType.Generic: p = main.pInfoGeneric; break;
+                case InfoType.Image:
+                case InfoType.ImageFile:
+                case InfoType.ImageStream:
+                    p = main.pInfoImage; break;
             }
             foreach (Panel pn in main.infopanels)
-                p.Visible = (pn == p);
+                pn.Visible = (pn == p);
         }
     }
 }

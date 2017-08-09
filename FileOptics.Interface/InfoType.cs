@@ -9,6 +9,7 @@ namespace FileOptics.Interface
         Generic, //GenericInfo
         Text, //string
         Image, //Image
+        ImageFile, //string
         ImageStream, //Stream
         PositionInHexBox, //int
         Table, //TableInfo

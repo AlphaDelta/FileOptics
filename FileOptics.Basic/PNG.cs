@@ -32,6 +32,9 @@ namespace FileOptics.Basic
 
         public bool Read(RootInfoNode root, Stream stream)
         {
+            root.Info = root.FilePath;
+            root.IType = InfoType.ImageFile;
+
             Bridge.AppendNode(
                 new InfoNode("Magic number",
                     InfoType.Generic,

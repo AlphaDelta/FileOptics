@@ -31,6 +31,8 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tree = new System.Windows.Forms.TreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.pInfoImage = new System.Windows.Forms.Panel();
+            this.imgInfo = new System.Windows.Forms.PictureBox();
             this.pInfoGeneric = new System.Windows.Forms.Panel();
             this.txtInfoGenericBody = new System.Windows.Forms.TextBox();
             this.lblInfoGenericTitle = new System.Windows.Forms.Label();
@@ -43,6 +45,8 @@
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            this.pInfoImage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).BeginInit();
             this.pInfoGeneric.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -94,6 +98,7 @@
             // splitContainer2.Panel1
             // 
             this.splitContainer2.Panel1.BackColor = System.Drawing.SystemColors.Window;
+            this.splitContainer2.Panel1.Controls.Add(this.pInfoImage);
             this.splitContainer2.Panel1.Controls.Add(this.pInfoGeneric);
             // 
             // splitContainer2.Panel2
@@ -104,6 +109,24 @@
             this.splitContainer2.SplitterDistance = 332;
             this.splitContainer2.TabIndex = 0;
             this.splitContainer2.TabStop = false;
+            // 
+            // pInfoImage
+            // 
+            this.pInfoImage.Controls.Add(this.imgInfo);
+            this.pInfoImage.Location = new System.Drawing.Point(74, 347);
+            this.pInfoImage.Name = "pInfoImage";
+            this.pInfoImage.Size = new System.Drawing.Size(64, 64);
+            this.pInfoImage.TabIndex = 0;
+            this.pInfoImage.Visible = false;
+            // 
+            // imgInfo
+            // 
+            this.imgInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.imgInfo.Location = new System.Drawing.Point(0, 0);
+            this.imgInfo.Name = "imgInfo";
+            this.imgInfo.Size = new System.Drawing.Size(64, 64);
+            this.imgInfo.TabIndex = 0;
+            this.imgInfo.TabStop = false;
             // 
             // pInfoGeneric
             // 
@@ -188,6 +211,8 @@
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             this.splitContainer2.ResumeLayout(false);
+            this.pInfoImage.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).EndInit();
             this.pInfoGeneric.ResumeLayout(false);
             this.pInfoGeneric.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
@@ -208,6 +233,8 @@
         internal System.Windows.Forms.Label lblInfoGenericTitle;
         internal System.Windows.Forms.TextBox txtInfoGenericBody;
         internal System.Windows.Forms.Panel pInfoGeneric;
+        internal System.Windows.Forms.Panel pInfoImage;
+        internal System.Windows.Forms.PictureBox imgInfo;
     }
 }
 
