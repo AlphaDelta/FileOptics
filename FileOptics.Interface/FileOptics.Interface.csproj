@@ -37,7 +37,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Action.cs" />
     <Compile Include="Bridge.cs" />
+    <Compile Include="DataInterpreter.cs" />
     <Compile Include="DataType.cs" />
     <Compile Include="IBridge.cs" />
     <Compile Include="IModule.cs" />

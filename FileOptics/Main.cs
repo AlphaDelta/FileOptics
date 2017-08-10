@@ -65,7 +65,38 @@ namespace FileOptics
                     List<int> valid = new List<int>();
                     byte[] magicbuffer = new byte[0x10];
                     int read = 0;
-                    using (FileStream fs = File.Open(files[0], FileMode.Open, FileAccess.Read, FileShare.Read))
+                    
+                    FileStream fs = null;
+                    string fname = Path.GetFileName(files[0]);
+                    try
+                    {
+                        fs = File.Open(files[0], FileMode.Open, FileAccess.Read, FileShare.Read);
+                    }
+                    catch (IOException ex)
+                    {
+                        if (!ex.Message.Contains("used by another process"))
+                        {
+                            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        if (MessageBox.Show("The file could not be write-locked, would you like to make a temporary copy and read that instead?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != System.Windows.Forms.DialogResult.Yes)
+                            return;
+
+                        byte[] hash = NayukiSHA256.Calculate(Encoding.ASCII.GetBytes(files[0]));
+                        StringBuilder sb = new StringBuilder(hash.Length * 2);
+                        foreach (byte b in hash)
+                            sb.Append(b.ToString("X2"));
+
+                        string newf = Root.LocalAppData + sb.ToString() + ".temp";
+                        File.Copy(files[0], newf);
+                        files[0] = newf;
+
+                        fs = File.Open(files[0], FileMode.Open, FileAccess.Read, FileShare.Read);
+                    }
+
+                    //using (FileStream fs = File.Open(files[0], FileMode.Open, FileAccess.Read, FileShare.Read))
+                    try
                     {
                         if (fs.Length < 1) return;
                         if ((read = fs.Read(magicbuffer, 0, magicbuffer.Length)) < 1) return;
@@ -100,15 +131,23 @@ namespace FileOptics
                             if (valid.Count < 1)
                                 MessageBox.Show("No modules that were able to read the specified file could be found.", "Unsupported Format", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             else if (valid.Count > 1)
-                                MessageBox.Show("More than one applicable module.", "Unsupported Format", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                MessageBox.Show("More than one applicable module.", "NYI", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             else
                             {
                                 fs.Seek(0, SeekOrigin.Begin);
-                                RootInfoNode root = new RootInfoNode(Path.GetFileName(files[0]), files[0], Root.Modules[valid[0]]);
+                                RootInfoNode root = new RootInfoNode(fname, files[0], Root.Modules[valid[0]]);
                                 Root.Modules[valid[0]].Read(root, fs);
                                 Bridge.AddRootNode(root);
                             }
                         });
+                    }
+                    finally
+                    {
+                        if (fs != null)
+                        {
+                            fs.Close();
+                            fs.Dispose();
+                        }
                     }
                 };
                 //});

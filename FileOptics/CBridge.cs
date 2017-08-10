@@ -1,6 +1,7 @@
 ﻿using FileOptics.Interface;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
@@ -28,7 +29,7 @@ namespace FileOptics
             super.Nodes.Add(i);
         }
 
-
+        Stream imgstream = null;
         public void ShowInfo(InfoType type, object info)
         {
             switch (type)
@@ -39,7 +40,27 @@ namespace FileOptics
                     break;
                 case InfoType.ImageFile:
                     main.imgInfo.Load((string)info);
+                    if (imgstream != null)
+                        imgstream.Dispose();
                     break;
+                case InfoType.ImageStream:
+                    Stream snew = ((Stream)info);
+                    main.imgInfo.Image = System.Drawing.Image.FromStream(snew);
+                    if (imgstream != null)
+                        imgstream.Dispose();
+                    break;
+                //case InfoType.None:
+                //    return;
+                case InfoType.Delegate:
+                    if (info.GetType() == typeof(Action))
+                    {
+                        ((Action)info)();
+                    }
+                    else if (info.GetType() == typeof(object[]))
+                    {
+                        ((Action<object[]>)((object[])info)[0])(((object[])((object[])info)[1]));
+                    }
+                    return;
             }
 
             ShowPanel(type);

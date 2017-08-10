@@ -25,9 +25,21 @@ namespace FileOptics
 
             bg.DoWork += delegate
             {
-                this.Invoke((Action)delegate { lbl.Text = "Checking for necessary files."; });
+                this.Invoke((Action)delegate { lbl.Text = "Checking for necessary files and folders."; });
                 if (!Directory.Exists("modules")) Directory.CreateDirectory("modules");
                 if (!File.Exists("modules\\trusted")) File.Create("modules\\trusted").Close();
+
+                string lad = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FileOptics\";
+                if (!Directory.Exists(lad)) Directory.CreateDirectory(lad);
+                Root.LocalAppData = lad;
+
+                string[] tempfs = Directory.GetFiles(Root.LocalAppData, "*.temp", SearchOption.TopDirectoryOnly);
+                if (tempfs.Length > 0)
+                {
+                    this.Invoke((Action)delegate { lbl.Text = "Cleaning temporary files."; });
+                    foreach (string tempf in tempfs)
+                        File.Delete(tempf);
+                }
 
                 this.Invoke((Action)delegate { lbl.Text = "Reading trusted module checksum list."; });
                 using (FileStream s = File.Open("modules\\trusted", FileMode.Open, FileAccess.Read, FileShare.None))

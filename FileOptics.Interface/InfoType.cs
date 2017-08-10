@@ -14,7 +14,7 @@ namespace FileOptics.Interface
         PositionInHexBox, //int
         Table, //TableInfo
         List, //ListInfo
-        Delegate, //Action/Delegate
+        Delegate, //object[] { Action<InfoNode>, object[] }
         None
     }
 }

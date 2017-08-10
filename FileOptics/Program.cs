@@ -20,6 +20,13 @@ namespace FileOptics
             CBridge b = new CBridge(m);
             FileOptics.Interface.Bridge.Base = b;
             Application.Run(m);
+
+            string[] tempfs = Directory.GetFiles(Root.LocalAppData, "*.temp", SearchOption.TopDirectoryOnly);
+            if (tempfs.Length > 0)
+            {
+                foreach (string tempf in tempfs)
+                    File.Delete(tempf);
+            }
         }
     }
 }

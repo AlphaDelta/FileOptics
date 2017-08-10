@@ -39,6 +39,7 @@
     <Compile Include="JFIF.cs" />
     <Compile Include="PNG.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Thumbcache.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FileOptics.Interface\FileOptics.Interface.csproj">
