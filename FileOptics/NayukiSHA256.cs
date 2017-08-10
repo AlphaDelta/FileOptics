@@ -72,6 +72,16 @@ namespace FileOptics
             this._Finalize = nayuki_io_sha256_finalize;
         }
 
+        public static void ReverseEndianness(ref UInt32[] hash)
+        {
+            for (int i = 0; i < hash.Length; i++)
+            {
+                hash[i] =
+                   (hash[i] & 0x000000FFU) << 0x18 | (hash[i] & 0x0000FF00U) << 0x08 |
+                   (hash[i] & 0x00FF0000U) >> 0x08 | (hash[i] & 0xFF000000U) >> 0x18;
+            }
+        }
+
         public void Append(byte[] data, int offset, int length)
         {
             if (finalized)
@@ -135,6 +145,8 @@ namespace FileOptics
 
             finalized = true;
 
+            ReverseEndianness(ref cstate);
+
             _Hash = new byte[cstate.Length * 4];
             int hashindex = 0;
             for (int i = 0; i < cstate.Length; i++)
@@ -170,6 +182,37 @@ namespace FileOptics
         {
             using (FileStream fs = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.Read))
                 AppendStream(fs, finalize);
+        }
+
+        public static byte[] Calculate(byte[] data)
+        {
+            UInt32[] cstate = new UInt32[] {
+                SHA256_IV_0,
+                SHA256_IV_1,
+                SHA256_IV_2,
+                SHA256_IV_3,
+                SHA256_IV_4,
+                SHA256_IV_5,
+                SHA256_IV_6,
+                SHA256_IV_7
+            };
+            nayuki_io_sha256(data, (uint)data.Length, cstate);
+
+            ReverseEndianness(ref cstate);
+            
+            byte[] hash = new byte[cstate.Length * 4];
+            int hashindex = 0;
+            for (int i = 0; i < cstate.Length; i++)
+            {
+                byte[] bytes = BitConverter.GetBytes(cstate[i]);
+                for (int j = 0; j < 4; j++)
+                {
+                    hash[hashindex] = bytes[j];
+                    hashindex++;
+                }
+            }
+
+            return hash;
         }
     }
 }
