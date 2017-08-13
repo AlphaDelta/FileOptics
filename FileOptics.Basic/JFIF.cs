@@ -25,6 +25,9 @@ namespace FileOptics.Basic
         const int JFIF_BUFFER_SIZE = 1024 * 512; //512KB
         public bool Read(RootInfoNode root, Stream stream)
         {
+            root.Info = root.FilePath;
+            root.IType = InfoType.ImageFile;
+
             byte[] buffer = new byte[JFIF_BUFFER_SIZE];
             byte[] tbb = new byte[2];
             int toread = 0;
@@ -143,14 +146,14 @@ namespace FileOptics.Basic
             if (!EOI)
                 return false;
 
-            if (stream.Position < stream.Length)
+            if (pos < stream.Length)
             {
                 Bridge.AppendNode(
                     new InfoNode("EOF",
                         InfoType.Generic,
                         new GenericInfo("EOF", "End Of File data; serves no function or purpose."),
                         DataType.Useless,
-                        stream.Position, stream.Length - 1),
+                        pos, stream.Length - 1),
                     root);
             }
 
