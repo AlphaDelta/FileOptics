@@ -144,7 +144,7 @@ namespace FileOptics.Basic
                 Bridge.AppendNode(
                     new InfoNode("EOF",
                         InfoType.Generic,
-                        new GenericInfo("EOF", "End Of File data; serves no function or purpose to the PNG image."),
+                        new GenericInfo("EOF", "End Of File data; serves no function or purpose."),
                         DataType.Useless,
                         stream.Position - 4, stream.Length - 1),
                     root);

@@ -143,6 +143,17 @@ namespace FileOptics.Basic
             if (!EOI)
                 return false;
 
+            if (stream.Position < stream.Length)
+            {
+                Bridge.AppendNode(
+                    new InfoNode("EOF",
+                        InfoType.Generic,
+                        new GenericInfo("EOF", "End Of File data; serves no function or purpose."),
+                        DataType.Useless,
+                        stream.Position, stream.Length - 1),
+                    root);
+            }
+
             return true;
         }
 
