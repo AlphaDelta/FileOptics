@@ -61,6 +61,8 @@ namespace FileOptics.Basic
                         i += skip + 1;
                         pos += skip + 1;
 
+                        if (i >= read) break; //Should have seen that coming
+
                         if((lastmarker & 0xF0) == 0xE0)
                             Bridge.AppendNode(new InfoNode("APP" + (lastmarker & 0x0F), InfoType.Generic, new GenericInfo("APP" + (lastmarker & 0x0F), "TODO."), ((lastmarker & 0x0F) < 2 ? DataType.Critical : DataType.Metadata), lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xDA)

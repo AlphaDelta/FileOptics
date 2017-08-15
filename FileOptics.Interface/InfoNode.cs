@@ -13,6 +13,7 @@ namespace FileOptics.Interface
         public long DataStart, DataEnd;
         public System.Drawing.Color HighlightColor = System.Drawing.Color.FromArgb(0x33, 0x99, 0xFF);
         public bool MarkedForDeletion = false;
+        public List<object> SecondaryInfo = new List<object>();
 
         public InfoNode(string Title, InfoType IType, object Info, DataType DType, long DataStart, long DataEnd)
         {

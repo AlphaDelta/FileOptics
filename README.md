@@ -12,3 +12,5 @@ Compiled DLLs are to be placed in the module folder. When the main program is ru
 The `FileOptics.Basic` project provides classes to read the following files
 
 * PNG image files (https://www.w3.org/TR/PNG/)
+* JPEG image files (JFIF and EXIF)
+* Windows Thumbcache files
