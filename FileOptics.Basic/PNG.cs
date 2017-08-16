@@ -106,6 +106,10 @@ namespace FileOptics.Basic
                         sb.AppendLine("The sRGB chunk specifies that the image samples conform to the sRGB colour space and contains a single byte specifying a rendering intent defined in ICC-1 and ICC-1A.");
                         dtype = DataType.Ancillary;
                         break;
+                    case "sBIT":
+                        sb.AppendLine("The sBIT chunk specifies the original the original amount of significant bits of the image. Its size in bytes should be equal to the amount of channels in the image.");
+                        dtype = DataType.Ancillary;
+                        break;
                     case "tEXt":
                         sb.AppendLine("The tEXT chunk is a metadata chunk that contains a null-terminated keyword of up to 80 characters (including the null character) followed by an arbitrary amount of Latin-1 text data defined in ISO-8859-1."); break;
                     case "zTXt":
