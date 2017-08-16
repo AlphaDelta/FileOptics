@@ -80,5 +80,13 @@ namespace FileOptics
             foreach (Panel pn in main.infopanels)
                 pn.Visible = (pn == p);
         }
+
+        public IModule FindModule(string fullname)
+        {
+            for (int i = 0; i < Root.ModuleAttribs.Count; i++)
+                if (Root.ModuleAttribs[i].Name == fullname)
+                    return Root.Modules[i];
+            return null;
+        }
     }
 }

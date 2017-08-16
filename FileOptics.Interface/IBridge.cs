@@ -13,5 +13,7 @@ namespace FileOptics.Interface
 
         void ShowInfo(InfoType type, object info);
         void ShowPanel(InfoType type);
+
+        IModule FindModule(string fullname);
     }
 }
