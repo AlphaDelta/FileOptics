@@ -48,6 +48,7 @@
     </Compile>
     <Compile Include="HexBox\HexBoxTheme.cs" />
     <Compile Include="HexBox\Highlight.cs" />
+    <Compile Include="HSV.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

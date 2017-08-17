@@ -156,6 +156,7 @@ namespace FileOptics
         }
 
         string fileloaded = null;
+        Random rnd = new Random();
         private void tree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             hexBox1.Highlights.Clear();
@@ -168,6 +169,23 @@ namespace FileOptics
 
                 hexBox1.ReadFile(rin.FilePath);
                 fileloaded = rin.FilePath;
+
+                double h = rnd.NextDouble();
+                int r, g, b;
+                foreach (InfoNode inode in e.Node.Nodes)
+                {
+                    HSV.ToRGB(h * 360, 1.00d, 1d, out r, out g, out b);
+                    hexBox1.Highlights.Add(new HexBoxLib.Highlight((int)inode.DataStart, (int)inode.DataEnd, Color.FromArgb(r, g, b)));
+
+                    //do
+                    //{
+                    h += Root.GOLDEN_RATIO;
+                    h %= 1;
+                    //} while (h > 0.15 && h < 0.525); 
+                }
+                
+                //hexBox1.ScrollTo(0);
+                hexBox1.Invalidate();
 
                 Bridge.ShowInfo(rin.IType, rin.Info);
             }

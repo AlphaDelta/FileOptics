@@ -10,4 +10,6 @@ internal class Root
     internal static List<ModuleAttrib> ModuleAttribs = new List<ModuleAttrib>();
 
     internal static string LocalAppData;
+
+    internal const double GOLDEN_RATIO = 0.618033988749895;
 }
