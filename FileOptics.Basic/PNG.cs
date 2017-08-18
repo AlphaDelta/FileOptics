@@ -126,6 +126,10 @@ namespace FileOptics.Basic
                         sb.AppendLine("The sPLT chunk specifies a suggested palette and contains a null-terminated palette name of up to 80 characters (including the null character) followed by a single byte specifying the bit depth, followed by an array, each entry contains an RGBA color as well as a 16-bit integer for frequency.");
                         dtype = DataType.Ancillary;
                         break;
+                    case "bKGD":
+                        sb.AppendLine("The bKGD chunk specifies a suggested background color to display the image against.");
+                        dtype = DataType.Ancillary;
+                        break;
                     case "tIME":
                         sb.AppendLine("The tIME chunk is a metadata chunk that contains the last modification time of the image. It consists of a 16-bit integer for the year, followed by a byte each for the month, day, hour, minute, and second."); break;
                     default:
