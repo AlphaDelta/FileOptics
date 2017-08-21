@@ -162,6 +162,147 @@ namespace FileOptics.Basic
                     root);
             }
 
+            foreach (InfoNode n in root.Nodes)
+            {
+                int datastart = (int)(n.DataStart + 8);
+                int datalength = (int)((n.DataEnd - 4) - datastart + 1);
+
+                if (datalength < 1) continue;
+
+                if (n.Text == "IHDR")
+                {
+                    if (datalength != 0x0D)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", "Could not parse header information. IHDR chunk must have a length of 0x0D (13 decimal)."),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                    }
+
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    byte[] hdrb = new byte[0x0D];
+                    stream.Read(hdrb, 0, 0x0D);
+
+                    uint xdim = (uint)hdrb[0] << 0x18 | (uint)hdrb[1] << 0x10 | (uint)hdrb[2] << 0x08 | (uint)hdrb[3];
+                    uint ydim = (uint)hdrb[4] << 0x18 | (uint)hdrb[5] << 0x10 | (uint)hdrb[6] << 0x08 | (uint)hdrb[7];
+                    string ctype = null;
+                    switch (hdrb[0x09])
+                    {
+                        case 0x00:
+                            ctype = "a greyscale image in which each pixel contains a single white sample";
+                            break;
+                        case 0x02:
+                            ctype = "a truecolor image in which each pixel contans a red, green, and blue sample";
+                            break;
+                        case 0x03:
+                            ctype = "an indexed-color image in which each pixel is a pointer to a palette entry";
+                            break;
+                        case 0x04:
+                            ctype = "a greyscale image with an alpha channel in which each pixel contains a white, and alpha sample";
+                            break;
+                        case 0x06:
+                            ctype = "a truecolor image with an alpha channel in which each pixel contains a red, green, blue, and alpha sample";
+                            break;
+                    }
+
+                    Bridge.AppendNode(
+                        new InfoNode("Header information",
+                            InfoType.Generic,
+                            new GenericInfo(
+                                "Header Information",
+                                String.Format("The image has a width of {0} and a height of {1}.\r\nIt has a bitdepth of {2} bits per sample.\r\nIt is {3}.\r\nThe image data is compressed using {4} compression algorithm.\r\nA filter method of '{5}' is specified.\r\nThe image {6} interlaced.",
+                                    xdim,
+                                    ydim,
+                                    hdrb[0x08],
+                                    ctype,
+                                    hdrb[0x0A] == 0 ? "the DEFLATE" : "an unknown",
+                                    hdrb[0x0B],
+                                    hdrb[0x0C] == 0 ? "is not" : "is")
+                            ),
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4),
+                        n);
+                }
+                else if (n.Text == "tEXt")
+                {
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    //this should never realistically be needed
+                    byte[] tb = new byte[0x100];
+                    int remaining = datalength, read = 0;
+                    bool istext = false;
+                    StringBuilder key = new StringBuilder();
+                    StringBuilder text = new StringBuilder();
+                    while (remaining > 0)
+                    {
+                        read = stream.Read(tb, 0, remaining > 0x100 ? 0x100 : remaining);
+                        remaining -= read;
+
+                        if (istext)
+                            text.Append(Encoding.ASCII.GetString(tb, 0, read));
+                        else
+                        {
+                            for (int i = 0; i < read; i++)
+                                if (tb[i] == 0x00)
+                                {
+                                    istext = true;
+                                    if(i > 0)
+                                        key.Append(Encoding.ASCII.GetString(tb, 0, i));
+                                    if (i < read - 1)
+                                        text.Append(Encoding.ASCII.GetString(tb, i + 1, read - i - 1));
+                                }
+                            if (istext)
+                                continue;
+                            key.Append(Encoding.ASCII.GetString(tb, 0, read));
+                        }
+                    }
+
+                    Bridge.AppendNode(
+                        new InfoNode("Standard text information",
+                            InfoType.Generic,
+                            new GenericInfo(key.ToString(), text.ToString()),
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4),
+                        n);
+                }
+                else if (n.Text == "tIME")
+                {
+                    if (datalength != 0x07)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", "Could not parse time information. tIME chunk must have a length of 0x07."),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                    }
+
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    byte[] tb = new byte[0x07];
+                    stream.Read(tb, 0, 0x07);
+
+                    //ushort year = (ushort);
+                    DateTime time = new DateTime((tb[0] << 0x08 | tb[1]), tb[2], tb[3], tb[4], tb[5], tb[6], DateTimeKind.Utc);
+                    //DateTime ltime = time.ToLocalTime(); //Thanks a lot imagemagick for completely ignoring the PNG standard and using the local time instead of UTC
+
+                    Bridge.AppendNode(
+                        new InfoNode("Last modification time information",
+                            InfoType.Generic,
+                            new GenericInfo(
+                                "Last Modification Time",
+                                String.Format("The last modification time of this image has been specified as {0} UTC.\r\nFormatted: {1}",
+                                    time.ToString("yyyy-MM-dd h:mm:sstt"),
+                                    time.ToString("F"))
+                            ),
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4),
+                        n);
+                }
+            }
+
             return true;
         }
 
