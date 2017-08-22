@@ -1,6 +1,7 @@
 ﻿using FileOptics.Interface;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -20,13 +21,21 @@ namespace FileOptics
             main.tree.Nodes.Add(i);
         }
 
+        void _AppendNode(InfoNode i, TreeNode super)
+        {
+            if (i.DType == DataType.Error)
+                i.ForeColor = Color.Red;
+
+            super.Nodes.Add(i);
+        }
+
         public void AppendNode(InfoNode i, InfoNode super)
         {
-            super.Nodes.Add(i);
+            _AppendNode(i, super);
         }
         public void AppendNode(InfoNode i, RootInfoNode super)
         {
-            super.Nodes.Add(i);
+            _AppendNode(i, super);
         }
 
         Stream imgstream = null;

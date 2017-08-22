@@ -1,6 +1,7 @@
 ﻿using FileOptics.Interface;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Text;
 
@@ -162,6 +163,7 @@ namespace FileOptics.Basic
                     root);
             }
 
+            byte colortype = 0xFF;
             foreach (InfoNode n in root.Nodes)
             {
                 int datastart = (int)(n.DataStart + 8);
@@ -180,6 +182,7 @@ namespace FileOptics.Basic
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
+                        continue;
                     }
 
                     stream.Seek(datastart, SeekOrigin.Begin);
@@ -189,7 +192,8 @@ namespace FileOptics.Basic
                     uint xdim = (uint)hdrb[0] << 0x18 | (uint)hdrb[1] << 0x10 | (uint)hdrb[2] << 0x08 | (uint)hdrb[3];
                     uint ydim = (uint)hdrb[4] << 0x18 | (uint)hdrb[5] << 0x10 | (uint)hdrb[6] << 0x08 | (uint)hdrb[7];
                     string ctype = null;
-                    switch (hdrb[0x09])
+                    colortype = hdrb[0x09];
+                    switch (colortype)
                     {
                         case 0x00:
                             ctype = "a greyscale image in which each pixel contains a single white sample";
@@ -278,6 +282,7 @@ namespace FileOptics.Basic
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
+                        continue;
                     }
 
                     stream.Seek(datastart, SeekOrigin.Begin);
@@ -293,7 +298,7 @@ namespace FileOptics.Basic
                             InfoType.Generic,
                             new GenericInfo(
                                 "Last Modification Time",
-                                String.Format("The last modification time of this image has been specified as {0} UTC.\r\nFormatted: {1}",
+                                String.Format("The last modification time of this image has been specified as {0} UTC.\r\n\r\nFormatted (F): {1}",
                                     time.ToString("yyyy-MM-dd h:mm:sstt"),
                                     time.ToString("F"))
                             ),
@@ -301,6 +306,79 @@ namespace FileOptics.Basic
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
                 }
+                else if (n.Text == "gAMA")
+                {
+                    if (datalength != 0x04)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", "Could not parse gamma information. gAMA chunk must have a length of 0x01."),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                        continue;
+                    }
+
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    byte[] gamab = new byte[0x04];
+                    stream.Read(gamab, 0, 0x04);
+
+                    uint ydim = (uint)gamab[0] << 0x18 | (uint)gamab[1] << 0x10 | (uint)gamab[2] << 0x08 | (uint)gamab[3];
+
+                    float gamma = ydim / 100000f;
+
+                    Bridge.AppendNode(
+                        new InfoNode("Gamma information",
+                            InfoType.Generic,
+                            new GenericInfo("Gamma Information", String.Format("This chunk specifies the desired image gamma at '{0}'.", gamma)),
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4),
+                        n);
+                }
+                else if (n.Text == "PLTE")
+                {
+                    if (datalength > 0x300 || datalength % 3 != 0)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", "Could not parse palette information. PLTE chunk must have a length less than 0x300 an divisible by three."),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                        continue;
+                    }
+
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    byte[] paletteb = new byte[datalength];
+                    stream.Read(paletteb, 0, datalength);
+
+                    List<Color> entries = new List<Color>();
+                    for (int i = 0; i < datalength; )
+                        entries.Add(Color.FromArgb(paletteb[i++], paletteb[i++], paletteb[i++]));
+
+                    StringBuilder sb = new StringBuilder();
+                    foreach (Color c in entries)
+                        sb.Append(String.Format("{0}, {1}, {2}", c.R, c.G, c.B));
+
+                    Bridge.AppendNode(
+                        new InfoNode("Color palette",
+                            InfoType.Generic,
+                            new GenericInfo("Color Palette", sb.ToString()),
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4),
+                        n);
+                }
+
+                /* *
+                 * Chunks that absolutely require IHDR to have already been read.
+                 * 
+                 * The specification states that the IHDR must always be the first chunk,
+                 * but we're a bit liberal with that; we're just parsing the image file,
+                 * we dont actually need to display it thus we don't need it to adhere to
+                 * the PNG specification we just need it to be coherent enough to read to EOF.
+                 * */
             }
 
             return true;
