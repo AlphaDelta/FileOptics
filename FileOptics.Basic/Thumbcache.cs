@@ -43,7 +43,7 @@ namespace FileOptics.Basic
                     InfoType.Generic,
                     new GenericInfo("CMMM Header", "Contains information about the file type version and cache type."),
                     DataType.Critical,
-                    0x00, 0x07),
+                    0x00, 0x17),
                 root);
 
             stream.Seek(0x04, SeekOrigin.Begin);
@@ -93,6 +93,8 @@ namespace FileOptics.Basic
                 if (stream.Read(uidb, 0, stringlen) != stringlen)
                     throw new Exception("Data ended earlier than expected.");
                 string uniqueid = Encoding.Unicode.GetString(uidb);
+
+                if (uniqueid.Length == 0 || uniqueid[0] == '\0') uniqueid = "NULL";
 
                 tempseek = stream.Position;
                 if (stream.Seek(paddinglen, SeekOrigin.Current) != tempseek + paddinglen) //Skip padding
