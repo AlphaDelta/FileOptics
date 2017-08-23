@@ -70,6 +70,28 @@ namespace FileOptics
                         ((Action<object[]>)((object[])info)[0])(((object[])((object[])info)[1]));
                     }
                     return;
+                case InfoType.Panel:
+                    Panel newpanel = (Panel)info;
+                    bool found = false;
+                    foreach (Panel pn in main.infopanels)
+                    {
+                        if (pn != newpanel)
+                        {
+                            pn.Visible = false;
+                            continue;
+                        }
+
+                        pn.Visible = true;
+                        found = true;
+                        break;
+                    }
+                    if (!found)
+                    {
+                        newpanel.Visible = true;
+                        newpanel.Dock = DockStyle.Fill;
+                        main.splitContainer2.Panel1.Controls.Add(newpanel);
+                    }
+                    return;
             }
 
             ShowPanel(type);
@@ -86,6 +108,11 @@ namespace FileOptics
                 case InfoType.ImageStream:
                     p = main.pInfoImage; break;
             }
+            ShowPanel(p);
+        }
+
+        public void ShowPanel(Panel p)
+        {
             foreach (Panel pn in main.infopanels)
                 pn.Visible = (pn == p);
         }

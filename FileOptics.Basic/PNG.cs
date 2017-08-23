@@ -31,6 +31,8 @@ namespace FileOptics.Basic
             //return i >= MAGIC.Length;
         }
 
+        System.Windows.Forms.Panel pInfoPalette = null;
+        System.Windows.Forms.ListView lvInfoPalette = null;
         public bool Read(RootInfoNode root, Stream stream)
         {
             root.Info = root.FilePath;
@@ -358,14 +360,56 @@ namespace FileOptics.Basic
                     for (int i = 0; i < datalength; )
                         entries.Add(Color.FromArgb(paletteb[i++], paletteb[i++], paletteb[i++]));
 
-                    StringBuilder sb = new StringBuilder();
-                    foreach (Color c in entries)
-                        sb.Append(String.Format("{0}, {1}, {2}", c.R, c.G, c.B));
+                    //StringBuilder sb = new StringBuilder();
+                    //foreach (Color c in entries)
+                    //    sb.Append(String.Format("{0}, {1}, {2}", c.R, c.G, c.B));
+
+                    //Bridge.AppendNode(
+                    //    new InfoNode("Color palette",
+                    //        InfoType.Generic,
+                    //        new GenericInfo("Color Palette", sb.ToString()),
+                    //        DataType.Critical,
+                    //        n.DataStart + 8, n.DataEnd - 4),
+                    //    n);
 
                     Bridge.AppendNode(
                         new InfoNode("Color palette",
-                            InfoType.Generic,
-                            new GenericInfo("Color Palette", sb.ToString()),
+                            InfoType.Delegate,
+                            new object[] {
+                                (Action<object[]>) delegate(object[] data) {
+                                    if(pInfoPalette == null) {
+                                        pInfoPalette = new System.Windows.Forms.Panel();
+
+                                        lvInfoPalette = new System.Windows.Forms.ListView();
+                                        lvInfoPalette.Dock = System.Windows.Forms.DockStyle.Fill;
+                                        lvInfoPalette.View = System.Windows.Forms.View.Details;
+                                        lvInfoPalette.FullRowSelect = true;
+                                        lvInfoPalette.Columns.Add("Index");
+                                        lvInfoPalette.Columns.Add("Red");
+                                        lvInfoPalette.Columns.Add("Green");
+                                        lvInfoPalette.Columns.Add("Blue");
+                                        lvInfoPalette.AutoResizeColumns(System.Windows.Forms.ColumnHeaderAutoResizeStyle.HeaderSize);
+
+                                        pInfoPalette.Controls.Add(lvInfoPalette);
+                                    }
+
+                                    lvInfoPalette.Items.Clear();
+
+                                    Color[] colors = (Color[])data[0];
+
+                                    for(int i = 0; i < colors.Length; i++) {
+                                        System.Windows.Forms.ListViewItem lvi = new System.Windows.Forms.ListViewItem(i.ToString()) { BackColor = colors[i] };
+                                        lvi.SubItems.Add(colors[i].R.ToString());
+                                        lvi.SubItems.Add(colors[i].G.ToString());
+                                        lvi.SubItems.Add(colors[i].B.ToString());
+                                        lvi.ForeColor = colors[i].R * 0.299 + colors[i].G * 0.587 + colors[i].B * 0.114 <= 186 ? Color.White : Color.Black;
+                                        lvInfoPalette.Items.Add(lvi);
+                                    }
+
+                                    Bridge.ShowInfo(InfoType.Panel, pInfoPalette);
+                                },
+                                new object[1] { entries.ToArray() }
+                            },
                             DataType.Critical,
                             n.DataStart + 8, n.DataEnd - 4),
                         n);

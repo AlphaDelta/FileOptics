@@ -15,6 +15,7 @@ namespace FileOptics.Interface
         Table, //TableInfo
         List, //ListInfo
         Delegate, //object[] { Action<InfoNode>, object[] }
+        Panel, //Panel
         None
     }
 }

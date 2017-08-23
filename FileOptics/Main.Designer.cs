@@ -36,9 +36,9 @@
             this.pInfoGeneric = new System.Windows.Forms.Panel();
             this.txtInfoGenericBody = new System.Windows.Forms.TextBox();
             this.lblInfoGenericTitle = new System.Windows.Forms.Label();
-            this.hexBox1 = new HexBoxLib.HexBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.hexBox1 = new HexBoxLib.HexBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -164,20 +164,6 @@
             this.lblInfoGenericTitle.TabIndex = 0;
             this.lblInfoGenericTitle.Text = "Title";
             // 
-            // hexBox1
-            // 
-            this.hexBox1.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hexBox1.BackColor = System.Drawing.Color.White;
-            this.hexBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hexBox1.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hexBox1.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hexBox1.Location = new System.Drawing.Point(0, 0);
-            this.hexBox1.Name = "hexBox1";
-            this.hexBox1.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hexBox1.Size = new System.Drawing.Size(646, 414);
-            this.hexBox1.TabIndex = 0;
-            this.hexBox1.Text = "hexBox1";
-            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -193,6 +179,20 @@
             this.menuFile.Name = "menuFile";
             this.menuFile.Size = new System.Drawing.Size(37, 20);
             this.menuFile.Text = "File";
+            // 
+            // hexBox1
+            // 
+            this.hexBox1.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hexBox1.BackColor = System.Drawing.Color.White;
+            this.hexBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hexBox1.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hexBox1.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hexBox1.Location = new System.Drawing.Point(0, 0);
+            this.hexBox1.Name = "hexBox1";
+            this.hexBox1.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hexBox1.Size = new System.Drawing.Size(646, 414);
+            this.hexBox1.TabIndex = 0;
+            this.hexBox1.Text = "hexBox1";
             // 
             // Main
             // 

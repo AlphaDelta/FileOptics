@@ -21,6 +21,7 @@ namespace FileOptics.Interface
 
         public static void ShowInfo(InfoType t, object i) { _base.ShowInfo(t, i); }
         public static void ShowPanel(InfoType t) { _base.ShowPanel(t); }
+        public static void ShowPanel(Panel p) { _base.ShowPanel(p); }
 
         public static IModule FindModule(string fullname) { return _base.FindModule(fullname); }
 
