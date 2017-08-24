@@ -73,6 +73,14 @@ namespace HexBoxLib
 
         public void ScrollTo(int row)
         {
+            if (row < rowoffset || row > rowoffset + visiblerows)
+                ScrollToExact(row);
+            //vscrollbar.Value = row * (charheight + _RowSpacing);
+            //ScrollEventArgs e = new ScrollEventArgs(ScrollEventType.EndScroll, vscrollbar.Value);
+            //OnScroll(vscrollbar, e);
+        }
+        public void ScrollToExact(int row)
+        {
             vscrollbar.Value = row * (charheight + _RowSpacing);
             ScrollEventArgs e = new ScrollEventArgs(ScrollEventType.EndScroll, vscrollbar.Value);
             OnScroll(vscrollbar, e);
