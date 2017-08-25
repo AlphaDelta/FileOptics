@@ -210,6 +210,10 @@ namespace FileOptics
                     fileloaded = rin.FilePath;
                 }
 
+                Color ghost = Color.FromArgb(0xDD, 0xDD, 0xDD);
+                foreach (InfoNode irn in rin.Nodes)
+                    hexBox1.Highlights.Add(new HexBoxLib.Highlight((int)irn.DataStart, (int)irn.DataEnd, ghost));
+
                 hexBox1.Highlights.Add(new HexBoxLib.Highlight((int)inode.DataStart, (int)inode.DataEnd, inode.HighlightColor));
                 hexBox1.ScrollTo((int)(inode.DataStart >> 4));
                 hexBox1.Invalidate();
