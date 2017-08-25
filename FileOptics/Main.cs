@@ -16,7 +16,6 @@ namespace FileOptics
         public Main()
         {
             InitializeComponent();
-
             //tree.KeyDown += delegate
             //{
             //    RootInfoNode rin = new RootInfoNode("Generic root", "FileOptics.exe", null);

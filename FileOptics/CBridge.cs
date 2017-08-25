@@ -92,6 +92,25 @@ namespace FileOptics
                         main.splitContainer2.Panel1.Controls.Add(newpanel);
                     }
                     return;
+                case InfoType.Table:
+                    TableInfo tinfo = (TableInfo)info;
+                    main.lvInfoTable.BeginUpdate();
+                    try
+                    {
+                        main.lvInfoTable.Items.Clear();
+                        main.lvInfoTable.Columns.Clear();
+
+                        main.lvInfoTable.View = tinfo.View;
+
+                        foreach (string c in tinfo.Columns)
+                            main.lvInfoTable.Columns.Add(c);
+                        foreach (ListViewItem itm in tinfo.Items)
+                            main.lvInfoTable.Items.Add(itm);
+
+                        main.lvInfoTable.AutoResizeColumns(tinfo.ResizeStyle);
+                    }
+                    finally { main.lvInfoTable.EndUpdate(); }
+                    break;
             }
 
             ShowPanel(type);
@@ -107,6 +126,7 @@ namespace FileOptics
                 case InfoType.ImageFile:
                 case InfoType.ImageStream:
                     p = main.pInfoImage; break;
+                case InfoType.Table: p = main.pInfoTable; break;
             }
             ShowPanel(p);
         }

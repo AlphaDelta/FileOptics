@@ -39,6 +39,8 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
             this.hexBox1 = new HexBoxLib.HexBox();
+            this.pInfoTable = new System.Windows.Forms.Panel();
+            this.lvInfoTable = new System.Windows.Forms.ListView();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -49,6 +51,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).BeginInit();
             this.pInfoGeneric.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.pInfoTable.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -98,6 +101,7 @@
             // splitContainer2.Panel1
             // 
             this.splitContainer2.Panel1.BackColor = System.Drawing.SystemColors.Window;
+            this.splitContainer2.Panel1.Controls.Add(this.pInfoTable);
             this.splitContainer2.Panel1.Controls.Add(this.pInfoImage);
             this.splitContainer2.Panel1.Controls.Add(this.pInfoGeneric);
             // 
@@ -194,6 +198,25 @@
             this.hexBox1.TabIndex = 0;
             this.hexBox1.Text = "hexBox1";
             // 
+            // pInfoTable
+            // 
+            this.pInfoTable.Controls.Add(this.lvInfoTable);
+            this.pInfoTable.Location = new System.Drawing.Point(144, 347);
+            this.pInfoTable.Name = "pInfoTable";
+            this.pInfoTable.Size = new System.Drawing.Size(64, 64);
+            this.pInfoTable.TabIndex = 1;
+            // 
+            // lvInfoTable
+            // 
+            this.lvInfoTable.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvInfoTable.FullRowSelect = true;
+            this.lvInfoTable.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.lvInfoTable.Location = new System.Drawing.Point(0, 0);
+            this.lvInfoTable.Name = "lvInfoTable";
+            this.lvInfoTable.Size = new System.Drawing.Size(64, 64);
+            this.lvInfoTable.TabIndex = 0;
+            this.lvInfoTable.UseCompatibleStateImageBehavior = false;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -218,6 +241,7 @@
             this.pInfoGeneric.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.pInfoTable.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -236,6 +260,8 @@
         internal System.Windows.Forms.Panel pInfoGeneric;
         internal System.Windows.Forms.Panel pInfoImage;
         internal System.Windows.Forms.PictureBox imgInfo;
+        internal System.Windows.Forms.Panel pInfoTable;
+        internal System.Windows.Forms.ListView lvInfoTable;
     }
 }
 

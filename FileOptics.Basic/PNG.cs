@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 
 namespace FileOptics.Basic
 {
@@ -356,63 +357,76 @@ namespace FileOptics.Basic
                     byte[] paletteb = new byte[datalength];
                     stream.Read(paletteb, 0, datalength);
 
-                    List<Color> entries = new List<Color>();
-                    for (int i = 0; i < datalength; )
-                        entries.Add(Color.FromArgb(paletteb[i++], paletteb[i++], paletteb[i++]));
+                    List<ListViewItem> entries = new List<ListViewItem>();
+                    int index = 0;
+                    for (int i = 0; i < datalength; index++)
+                    {
+                        int r = paletteb[i++];
+                        int g = paletteb[i++];
+                        int b = paletteb[i++];
+
+                        System.Windows.Forms.ListViewItem lvi = new System.Windows.Forms.ListViewItem(index.ToString()) { BackColor = Color.FromArgb(r, g, b) };
+                        lvi.SubItems.Add(r.ToString());
+                        lvi.SubItems.Add(g.ToString());
+                        lvi.SubItems.Add(b.ToString());
+                        lvi.ForeColor = r * 0.299 + g * 0.587 + b * 0.114 <= 186 ? Color.White : Color.Black;
+                        entries.Add(lvi);
+                        //entries.Add(Color.FromArgb(paletteb[i++], paletteb[i++], paletteb[i++]));
+                    }
 
                     //StringBuilder sb = new StringBuilder();
                     //foreach (Color c in entries)
                     //    sb.Append(String.Format("{0}, {1}, {2}", c.R, c.G, c.B));
 
-                    //Bridge.AppendNode(
-                    //    new InfoNode("Color palette",
-                    //        InfoType.Generic,
-                    //        new GenericInfo("Color Palette", sb.ToString()),
-                    //        DataType.Critical,
-                    //        n.DataStart + 8, n.DataEnd - 4),
-                    //    n);
-
                     Bridge.AppendNode(
                         new InfoNode("Color palette",
-                            InfoType.Delegate,
-                            new object[] {
-                                (Action<object[]>) delegate(object[] data) {
-                                    if(pInfoPalette == null) {
-                                        pInfoPalette = new System.Windows.Forms.Panel();
-
-                                        lvInfoPalette = new System.Windows.Forms.ListView();
-                                        lvInfoPalette.Dock = System.Windows.Forms.DockStyle.Fill;
-                                        lvInfoPalette.View = System.Windows.Forms.View.Details;
-                                        lvInfoPalette.FullRowSelect = true;
-                                        lvInfoPalette.Columns.Add("Index");
-                                        lvInfoPalette.Columns.Add("Red");
-                                        lvInfoPalette.Columns.Add("Green");
-                                        lvInfoPalette.Columns.Add("Blue");
-                                        lvInfoPalette.AutoResizeColumns(System.Windows.Forms.ColumnHeaderAutoResizeStyle.HeaderSize);
-
-                                        pInfoPalette.Controls.Add(lvInfoPalette);
-                                    }
-
-                                    lvInfoPalette.Items.Clear();
-
-                                    Color[] colors = (Color[])data[0];
-
-                                    for(int i = 0; i < colors.Length; i++) {
-                                        System.Windows.Forms.ListViewItem lvi = new System.Windows.Forms.ListViewItem(i.ToString()) { BackColor = colors[i] };
-                                        lvi.SubItems.Add(colors[i].R.ToString());
-                                        lvi.SubItems.Add(colors[i].G.ToString());
-                                        lvi.SubItems.Add(colors[i].B.ToString());
-                                        lvi.ForeColor = colors[i].R * 0.299 + colors[i].G * 0.587 + colors[i].B * 0.114 <= 186 ? Color.White : Color.Black;
-                                        lvInfoPalette.Items.Add(lvi);
-                                    }
-
-                                    Bridge.ShowInfo(InfoType.Panel, pInfoPalette);
-                                },
-                                new object[1] { entries.ToArray() }
-                            },
+                            InfoType.Table,
+                            new TableInfo(View.Details, new string[] { "Index", "Red", "Green", "Blue" }, entries.ToArray()) { ResizeStyle = ColumnHeaderAutoResizeStyle.HeaderSize },
                             DataType.Critical,
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
+
+                    //Bridge.AppendNode(
+                    //    new InfoNode("Color palette",
+                    //        InfoType.Delegate,
+                    //        new object[] {
+                    //            (Action<object[]>) delegate(object[] data) {
+                    //                if(pInfoPalette == null) {
+                    //                    pInfoPalette = new System.Windows.Forms.Panel();
+
+                    //                    lvInfoPalette = new System.Windows.Forms.ListView();
+                    //                    lvInfoPalette.Dock = System.Windows.Forms.DockStyle.Fill;
+                    //                    lvInfoPalette.View = System.Windows.Forms.View.Details;
+                    //                    lvInfoPalette.FullRowSelect = true;
+                    //                    lvInfoPalette.Columns.Add("Index");
+                    //                    lvInfoPalette.Columns.Add("Red");
+                    //                    lvInfoPalette.Columns.Add("Green");
+                    //                    lvInfoPalette.Columns.Add("Blue");
+                    //                    lvInfoPalette.AutoResizeColumns(System.Windows.Forms.ColumnHeaderAutoResizeStyle.HeaderSize);
+
+                    //                    pInfoPalette.Controls.Add(lvInfoPalette);
+                    //                }
+
+                    //                lvInfoPalette.Items.Clear();
+
+                    //                Color[] colors = (Color[])data[0];
+
+                    //                for(int i = 0; i < colors.Length; i++) {
+                    //                    System.Windows.Forms.ListViewItem lvi = new System.Windows.Forms.ListViewItem(i.ToString()) { BackColor = colors[i] };
+                    //                    lvi.SubItems.Add(colors[i].R.ToString());
+                    //                    lvi.SubItems.Add(colors[i].G.ToString());
+                    //                    lvi.SubItems.Add(colors[i].B.ToString());
+                    //                    lvi.ForeColor = colors[i].R * 0.299 + colors[i].G * 0.587 + colors[i].B * 0.114 <= 186 ? Color.White : Color.Black;
+                    //                    lvInfoPalette.Items.Add(lvi);
+                    //                }
+
+                    //                Bridge.ShowInfo(InfoType.Panel, pInfoPalette);
+                    //            },
+                    //            new object[1] { entries.ToArray() }
+                    //        },
+                    //        DataType.Critical,
+                    //        n.DataStart + 8, n.DataEnd - 4),
+                    //    n);
                 }
 
                 /* *
@@ -423,6 +437,83 @@ namespace FileOptics.Basic
                  * we dont actually need to display it thus we don't need it to adhere to
                  * the PNG specification we just need it to be coherent enough to read to EOF.
                  * */
+                if (colortype == 0xFF) continue;
+                else if (n.Text == "tRNS")
+                {
+                    byte[] trnsb;
+                    if (colortype == 0x03) //Indexed color
+                    {
+                        stream.Seek(datastart, SeekOrigin.Begin);
+                        trnsb = new byte[datalength];
+                        stream.Read(trnsb, 0, datalength);
+
+                        List<ListViewItem> entries = new List<ListViewItem>();
+                        for (int i = 0; i < datalength; i++)
+                            entries.Add(new ListViewItem(new string[] { i.ToString(), trnsb[i].ToString() }));
+
+                        Bridge.AppendNode(
+                            new InfoNode("Transparency information (Paletted)",
+                                InfoType.Table,
+                                new TableInfo(View.Details, new string[] { "Index", "Opacity" }, entries.ToArray()) { ResizeStyle = ColumnHeaderAutoResizeStyle.HeaderSize },
+                                DataType.Critical,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+
+                        continue;
+                    }
+
+                    int trnslen = colortype == 0x00 ? 2 : (colortype == 0x02 ? 6 : -1);
+
+                    if (trnslen < 1)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", String.Format("Could not parse transparency information. The color type specified in the IHDR chunk is not supported.", trnslen, colortype)),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                        continue;
+                    }
+                    if (datalength != trnslen)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", String.Format("Could not parse transparency information. tRNS chunk must have a length of 0x{0:X2} with color type 0x{1:X2}.", trnslen, colortype)),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                        continue;
+                    }
+
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    trnsb = new byte[trnslen];
+                    stream.Read(trnsb, 0, trnslen);
+
+                    string body = "";
+                    if (trnslen == 2)
+                    {
+                        uint grey = (uint)trnsb[0] << 0x08 | (uint)trnsb[1];
+                        body = String.Format("transparent grey color as '{0}'", grey);
+                    }
+                    else if (trnslen == 6)
+                    {
+                        uint red = (uint)trnsb[0] << 0x08 | (uint)trnsb[1];
+                        uint green = (uint)trnsb[2] << 0x08 | (uint)trnsb[3];
+                        uint blue = (uint)trnsb[4] << 0x08 | (uint)trnsb[5];
+                        body = String.Format("transparent RGB color as '{0}, {1}, {2}'", red, green, blue);
+                    }
+                    //uint ydim = (uint)gamab[0] << 0x18 | (uint)gamab[1] << 0x10 | (uint)gamab[2] << 0x08 | (uint)gamab[3];
+
+                    Bridge.AppendNode(
+                        new InfoNode("Transparency information",
+                            InfoType.Generic,
+                            new GenericInfo("Transparency Information", String.Format("This chunk specifies the {0}.", body)),
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4),
+                        n);
+                }
             }
 
             return true;
