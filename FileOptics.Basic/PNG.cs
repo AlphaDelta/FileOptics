@@ -371,12 +371,7 @@ namespace FileOptics.Basic
                         lvi.SubItems.Add(b.ToString());
                         lvi.ForeColor = r * 0.299 + g * 0.587 + b * 0.114 <= 186 ? Color.White : Color.Black;
                         entries.Add(lvi);
-                        //entries.Add(Color.FromArgb(paletteb[i++], paletteb[i++], paletteb[i++]));
                     }
-
-                    //StringBuilder sb = new StringBuilder();
-                    //foreach (Color c in entries)
-                    //    sb.Append(String.Format("{0}, {1}, {2}", c.R, c.G, c.B));
 
                     Bridge.AppendNode(
                         new InfoNode("Color palette",
@@ -385,48 +380,61 @@ namespace FileOptics.Basic
                             DataType.Critical,
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
+                }
+                else if (n.Text == "cHRM")
+                {
+                    if (datalength != 0x20)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", "Could not parse chromatic information. cHRM chunk must have a length of 0x20."),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                        continue;
+                    }
 
-                    //Bridge.AppendNode(
-                    //    new InfoNode("Color palette",
-                    //        InfoType.Delegate,
-                    //        new object[] {
-                    //            (Action<object[]>) delegate(object[] data) {
-                    //                if(pInfoPalette == null) {
-                    //                    pInfoPalette = new System.Windows.Forms.Panel();
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    byte[] chrmb = new byte[0x20];
+                    stream.Read(chrmb, 0, 0x20);
 
-                    //                    lvInfoPalette = new System.Windows.Forms.ListView();
-                    //                    lvInfoPalette.Dock = System.Windows.Forms.DockStyle.Fill;
-                    //                    lvInfoPalette.View = System.Windows.Forms.View.Details;
-                    //                    lvInfoPalette.FullRowSelect = true;
-                    //                    lvInfoPalette.Columns.Add("Index");
-                    //                    lvInfoPalette.Columns.Add("Red");
-                    //                    lvInfoPalette.Columns.Add("Green");
-                    //                    lvInfoPalette.Columns.Add("Blue");
-                    //                    lvInfoPalette.AutoResizeColumns(System.Windows.Forms.ColumnHeaderAutoResizeStyle.HeaderSize);
+                    uint
+                    uwx = (uint)chrmb[0x00] << 0x18 | (uint)chrmb[0x01] << 0x10 | (uint)chrmb[0x02] << 0x08 | (uint)chrmb[0x03],
+                    uwy = (uint)chrmb[0x04] << 0x18 | (uint)chrmb[0x05] << 0x10 | (uint)chrmb[0x06] << 0x08 | (uint)chrmb[0x07],
+                    urx = (uint)chrmb[0x08] << 0x18 | (uint)chrmb[0x09] << 0x10 | (uint)chrmb[0x0A] << 0x08 | (uint)chrmb[0x0B],
+                    ury = (uint)chrmb[0x0C] << 0x18 | (uint)chrmb[0x0D] << 0x10 | (uint)chrmb[0x0E] << 0x08 | (uint)chrmb[0x0F],
+                    ugx = (uint)chrmb[0x10] << 0x18 | (uint)chrmb[0x11] << 0x10 | (uint)chrmb[0x12] << 0x08 | (uint)chrmb[0x13],
+                    ugy = (uint)chrmb[0x14] << 0x18 | (uint)chrmb[0x15] << 0x10 | (uint)chrmb[0x16] << 0x08 | (uint)chrmb[0x17],
+                    ubx = (uint)chrmb[0x18] << 0x18 | (uint)chrmb[0x19] << 0x10 | (uint)chrmb[0x1A] << 0x08 | (uint)chrmb[0x1B],
+                    uby = (uint)chrmb[0x1C] << 0x18 | (uint)chrmb[0x1D] << 0x10 | (uint)chrmb[0x1E] << 0x08 | (uint)chrmb[0x1F];
 
-                    //                    pInfoPalette.Controls.Add(lvInfoPalette);
-                    //                }
+                    float
+                    wx = (uwx > 0 ? uwx / 100000f : 0),
+                    wy = (uwx > 0 ? uwx / 100000f : 0),
+                    rx = (uwx > 0 ? uwx / 100000f : 0),
+                    ry = (uwx > 0 ? uwx / 100000f : 0),
+                    gx = (uwx > 0 ? uwx / 100000f : 0),
+                    gy = (uwx > 0 ? uwx / 100000f : 0),
+                    bx = (uwx > 0 ? uwx / 100000f : 0),
+                    by = (uwx > 0 ? uwx / 100000f : 0);
 
-                    //                lvInfoPalette.Items.Clear();
-
-                    //                Color[] colors = (Color[])data[0];
-
-                    //                for(int i = 0; i < colors.Length; i++) {
-                    //                    System.Windows.Forms.ListViewItem lvi = new System.Windows.Forms.ListViewItem(i.ToString()) { BackColor = colors[i] };
-                    //                    lvi.SubItems.Add(colors[i].R.ToString());
-                    //                    lvi.SubItems.Add(colors[i].G.ToString());
-                    //                    lvi.SubItems.Add(colors[i].B.ToString());
-                    //                    lvi.ForeColor = colors[i].R * 0.299 + colors[i].G * 0.587 + colors[i].B * 0.114 <= 186 ? Color.White : Color.Black;
-                    //                    lvInfoPalette.Items.Add(lvi);
-                    //                }
-
-                    //                Bridge.ShowInfo(InfoType.Panel, pInfoPalette);
-                    //            },
-                    //            new object[1] { entries.ToArray() }
-                    //        },
-                    //        DataType.Critical,
-                    //        n.DataStart + 8, n.DataEnd - 4),
-                    //    n);
+                    Bridge.AppendNode(
+                        new InfoNode("Chromatic information",
+                            InfoType.Table,
+                            new TableInfo(View.Details, new string[] { "Key", "Value" }, new ListViewItem[] {
+                                new ListViewItem(new string[] { "White X", wx.ToString() }),
+                                new ListViewItem(new string[] { "White Y", wy.ToString() }),
+                                new ListViewItem(new string[] { "Red X", rx.ToString() }),
+                                new ListViewItem(new string[] { "Red Y", ry.ToString() }),
+                                new ListViewItem(new string[] { "Green X", gx.ToString() }),
+                                new ListViewItem(new string[] { "Green Y", gy.ToString() }),
+                                new ListViewItem(new string[] { "Blue X", bx.ToString() }),
+                                new ListViewItem(new string[] { "Blue Y", by.ToString() })
+                            }),
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4),
+                        n);
                 }
 
                 /* *
@@ -437,7 +445,7 @@ namespace FileOptics.Basic
                  * we dont actually need to display it thus we don't need it to adhere to
                  * the PNG specification we just need it to be coherent enough to read to EOF.
                  * */
-                if (colortype == 0xFF) continue;
+                else if (colortype == 0xFF) continue;
                 else if (n.Text == "tRNS")
                 {
                     byte[] trnsb;
