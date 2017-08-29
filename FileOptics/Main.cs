@@ -16,6 +16,14 @@ namespace FileOptics
         public Main()
         {
             InitializeComponent();
+
+            imglTree.Images.Add("null", Properties.Resources.tree_null);
+            imglTree.Images.Add("info", Properties.Resources.tree_info);
+            imglTree.Images.Add("error", Properties.Resources.tree_error);
+            imglTree.Images.Add("binary", Properties.Resources.tree_binary);
+            imglTree.Images.Add("block", Properties.Resources.tree_block_blue);
+            imglTree.Images.Add("block-orange", Properties.Resources.tree_block_orange);
+
             //tree.KeyDown += delegate
             //{
             //    RootInfoNode rin = new RootInfoNode("Generic root", "FileOptics.exe", null);

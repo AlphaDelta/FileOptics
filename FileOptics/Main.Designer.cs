@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tree = new System.Windows.Forms.TreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -38,9 +39,10 @@
             this.lblInfoGenericTitle = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.hexBox1 = new HexBoxLib.HexBox();
             this.pInfoTable = new System.Windows.Forms.Panel();
             this.lvInfoTable = new System.Windows.Forms.ListView();
+            this.imglTree = new System.Windows.Forms.ImageList(this.components);
+            this.hexBox1 = new HexBoxLib.HexBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -83,9 +85,12 @@
             this.tree.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tree.HideSelection = false;
+            this.tree.ImageIndex = 0;
+            this.tree.ImageList = this.imglTree;
             this.tree.LineColor = System.Drawing.Color.Silver;
             this.tree.Location = new System.Drawing.Point(0, 4);
             this.tree.Name = "tree";
+            this.tree.SelectedImageIndex = 0;
             this.tree.Size = new System.Drawing.Size(156, 406);
             this.tree.TabIndex = 0;
             this.tree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tree_AfterSelect);
@@ -184,20 +189,6 @@
             this.menuFile.Size = new System.Drawing.Size(37, 20);
             this.menuFile.Text = "File";
             // 
-            // hexBox1
-            // 
-            this.hexBox1.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hexBox1.BackColor = System.Drawing.Color.White;
-            this.hexBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hexBox1.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hexBox1.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hexBox1.Location = new System.Drawing.Point(0, 0);
-            this.hexBox1.Name = "hexBox1";
-            this.hexBox1.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hexBox1.Size = new System.Drawing.Size(646, 414);
-            this.hexBox1.TabIndex = 0;
-            this.hexBox1.Text = "hexBox1";
-            // 
             // pInfoTable
             // 
             this.pInfoTable.Controls.Add(this.lvInfoTable);
@@ -216,6 +207,26 @@
             this.lvInfoTable.Size = new System.Drawing.Size(64, 64);
             this.lvInfoTable.TabIndex = 0;
             this.lvInfoTable.UseCompatibleStateImageBehavior = false;
+            // 
+            // imglTree
+            // 
+            this.imglTree.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            this.imglTree.ImageSize = new System.Drawing.Size(16, 16);
+            this.imglTree.TransparentColor = System.Drawing.Color.Transparent;
+            // 
+            // hexBox1
+            // 
+            this.hexBox1.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hexBox1.BackColor = System.Drawing.Color.White;
+            this.hexBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hexBox1.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hexBox1.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hexBox1.Location = new System.Drawing.Point(0, 0);
+            this.hexBox1.Name = "hexBox1";
+            this.hexBox1.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hexBox1.Size = new System.Drawing.Size(646, 414);
+            this.hexBox1.TabIndex = 0;
+            this.hexBox1.Text = "hexBox1";
             // 
             // Main
             // 
@@ -262,6 +273,7 @@
         internal System.Windows.Forms.PictureBox imgInfo;
         internal System.Windows.Forms.Panel pInfoTable;
         internal System.Windows.Forms.ListView lvInfoTable;
+        private System.Windows.Forms.ImageList imglTree;
     }
 }
 

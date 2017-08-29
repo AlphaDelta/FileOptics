@@ -69,9 +69,13 @@ namespace FileOptics
                     }
                     if (i < 32)
                     {
-                        //MessageBox.Show(String.Format("Unknown module '{0}'.", Path.GetFileName(file)), "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        if (MessageBox.Show(String.Format("The module '{0}' has not yet been trusted. Would you like to add it to the trusted module list? (Note: Modules are like programs, they can be just as dangerous as running an exe. Please be responsible with trusting modules of unknown origin)\r\nChoosing 'No' will result in the module not being loaded.", Path.GetFileName(file)), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != System.Windows.Forms.DialogResult.Yes)
-                            continue;
+                        bool scon = false;
+                        this.Invoke((Action)delegate
+                        {
+                            if (MessageBox.Show(String.Format("The module '{0}' has not yet been trusted. Would you like to add it to the trusted module list? (Note: Modules are like programs, they can be just as dangerous as running an exe. Please be responsible with trusting modules of unknown origin)\r\nChoosing 'No' will result in the module not being loaded.", Path.GetFileName(file)), "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != System.Windows.Forms.DialogResult.Yes)
+                                scon = true;
+                        });
+                        if (scon) continue;
 
                         //File.WriteAllBytes("modules\\trusted", sha256.Hash);
                         using (FileStream trusted = File.Open("modules\\trusted", FileMode.Append, FileAccess.Write, FileShare.Read))

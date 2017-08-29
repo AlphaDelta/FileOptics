@@ -40,7 +40,7 @@ namespace FileOptics.Basic
             root.IType = InfoType.ImageFile;
 
             Bridge.AppendNode(
-                new InfoNode("Magic number",
+                new InfoNode("Magic number", "binary",
                     InfoType.Generic,
                     new GenericInfo("Magic Number", "An array of bytes that allows programs to determine that the specific file is a PNG."),
                     DataType.Critical,
@@ -147,7 +147,7 @@ namespace FileOptics.Basic
                 sb.Append(String.Format("This chunk has a CRC32 of {0:X2}{1:X2}{2:X2}{3:X2}", buffer[0], buffer[1], buffer[2], buffer[3]));
 
                 Bridge.AppendNode(
-                    new InfoNode(name,
+                    new InfoNode(name, "block",
                         InfoType.Generic,
                         new GenericInfo(name + " Chunk", sb.ToString()),
                         dtype,
@@ -179,7 +179,7 @@ namespace FileOptics.Basic
                     if (datalength != 0x0D)
                     {
                         Bridge.AppendNode(
-                            new InfoNode("Error",
+                            new InfoNode("Error", "error",
                                 InfoType.Generic,
                                 new GenericInfo("Error", "Could not parse header information. IHDR chunk must have a length of 0x0D (13 decimal)."),
                                 DataType.Error,
@@ -216,7 +216,7 @@ namespace FileOptics.Basic
                     }
 
                     Bridge.AppendNode(
-                        new InfoNode("Header information",
+                        new InfoNode("Header information", "info",
                             InfoType.Generic,
                             new GenericInfo(
                                 "Header Information",
@@ -267,7 +267,7 @@ namespace FileOptics.Basic
                     }
 
                     Bridge.AppendNode(
-                        new InfoNode("Standard text information",
+                        new InfoNode("Standard text information", "info",
                             InfoType.Generic,
                             new GenericInfo(key.ToString(), text.ToString()),
                             DataType.Critical,
@@ -279,7 +279,7 @@ namespace FileOptics.Basic
                     if (datalength != 0x07)
                     {
                         Bridge.AppendNode(
-                            new InfoNode("Error",
+                            new InfoNode("Error", "error",
                                 InfoType.Generic,
                                 new GenericInfo("Error", "Could not parse time information. tIME chunk must have a length of 0x07."),
                                 DataType.Error,
@@ -297,7 +297,7 @@ namespace FileOptics.Basic
                     //DateTime ltime = time.ToLocalTime(); //Thanks a lot imagemagick for completely ignoring the PNG standard and using the local time instead of UTC
 
                     Bridge.AppendNode(
-                        new InfoNode("Last modification time information",
+                        new InfoNode("Last modification time information", "info",
                             InfoType.Generic,
                             new GenericInfo(
                                 "Last Modification Time",
@@ -314,7 +314,7 @@ namespace FileOptics.Basic
                     if (datalength != 0x04)
                     {
                         Bridge.AppendNode(
-                            new InfoNode("Error",
+                            new InfoNode("Error", "error",
                                 InfoType.Generic,
                                 new GenericInfo("Error", "Could not parse gamma information. gAMA chunk must have a length of 0x01."),
                                 DataType.Error,
@@ -332,7 +332,7 @@ namespace FileOptics.Basic
                     float gamma = ydim / 100000f;
 
                     Bridge.AppendNode(
-                        new InfoNode("Gamma information",
+                        new InfoNode("Gamma information", "info",
                             InfoType.Generic,
                             new GenericInfo("Gamma Information", String.Format("This chunk specifies the desired image gamma at '{0}'.", gamma)),
                             DataType.Critical,
@@ -344,7 +344,7 @@ namespace FileOptics.Basic
                     if (datalength > 0x300 || datalength % 3 != 0)
                     {
                         Bridge.AppendNode(
-                            new InfoNode("Error",
+                            new InfoNode("Error", "error",
                                 InfoType.Generic,
                                 new GenericInfo("Error", "Could not parse palette information. PLTE chunk must have a length less than 0x300 an divisible by three."),
                                 DataType.Error,
@@ -374,7 +374,7 @@ namespace FileOptics.Basic
                     }
 
                     Bridge.AppendNode(
-                        new InfoNode("Color palette",
+                        new InfoNode("Color palette", "info",
                             InfoType.Table,
                             new TableInfo(View.Details, new string[] { "Index", "Red", "Green", "Blue" }, entries.ToArray()) { ResizeStyle = ColumnHeaderAutoResizeStyle.HeaderSize },
                             DataType.Critical,
@@ -386,7 +386,7 @@ namespace FileOptics.Basic
                     if (datalength != 0x20)
                     {
                         Bridge.AppendNode(
-                            new InfoNode("Error",
+                            new InfoNode("Error", "error",
                                 InfoType.Generic,
                                 new GenericInfo("Error", "Could not parse chromatic information. cHRM chunk must have a length of 0x20."),
                                 DataType.Error,
@@ -420,7 +420,7 @@ namespace FileOptics.Basic
                     by = (uwx > 0 ? uwx / 100000f : 0);
 
                     Bridge.AppendNode(
-                        new InfoNode("Chromatic information",
+                        new InfoNode("Chromatic information", "info",
                             InfoType.Table,
                             new TableInfo(View.Details, new string[] { "Key", "Value" }, new ListViewItem[] {
                                 new ListViewItem(new string[] { "White X", wx.ToString() }),
@@ -460,7 +460,7 @@ namespace FileOptics.Basic
                             entries.Add(new ListViewItem(new string[] { i.ToString(), trnsb[i].ToString() }));
 
                         Bridge.AppendNode(
-                            new InfoNode("Transparency information (Paletted)",
+                            new InfoNode("Transparency information (Paletted)", "info",
                                 InfoType.Table,
                                 new TableInfo(View.Details, new string[] { "Index", "Opacity" }, entries.ToArray()) { ResizeStyle = ColumnHeaderAutoResizeStyle.HeaderSize },
                                 DataType.Critical,
@@ -475,7 +475,7 @@ namespace FileOptics.Basic
                     if (trnslen < 1)
                     {
                         Bridge.AppendNode(
-                            new InfoNode("Error",
+                            new InfoNode("Error", "error",
                                 InfoType.Generic,
                                 new GenericInfo("Error", String.Format("Could not parse transparency information. The color type specified in the IHDR chunk is not supported.", trnslen, colortype)),
                                 DataType.Error,
@@ -486,7 +486,7 @@ namespace FileOptics.Basic
                     if (datalength != trnslen)
                     {
                         Bridge.AppendNode(
-                            new InfoNode("Error",
+                            new InfoNode("Error", "error",
                                 InfoType.Generic,
                                 new GenericInfo("Error", String.Format("Could not parse transparency information. tRNS chunk must have a length of 0x{0:X2} with color type 0x{1:X2}.", trnslen, colortype)),
                                 DataType.Error,
@@ -515,7 +515,7 @@ namespace FileOptics.Basic
                     //uint ydim = (uint)gamab[0] << 0x18 | (uint)gamab[1] << 0x10 | (uint)gamab[2] << 0x08 | (uint)gamab[3];
 
                     Bridge.AppendNode(
-                        new InfoNode("Transparency information",
+                        new InfoNode("Transparency information", "info",
                             InfoType.Generic,
                             new GenericInfo("Transparency Information", String.Format("This chunk specifies the {0}.", body)),
                             DataType.Critical,

@@ -76,6 +76,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="Startup.resx">
       <DependentUpon>Startup.cs</DependentUpon>
@@ -97,6 +98,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="img\tree-binary.png" />
+    <Content Include="img\tree-block-blue.png" />
+    <Content Include="img\tree-block-orange.png" />
+    <Content Include="img\tree-error.png" />
+    <Content Include="img\tree-info.png" />
+    <Content Include="img\tree-null.png" />
     <Content Include="nayuki-sha256-w32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

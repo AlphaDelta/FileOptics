@@ -29,7 +29,7 @@ namespace FileOptics.Interface
             this.IType = IType;
             this.Info = Info;
             this.Text = Title;
-            this.ImageIndex = ImageIndex;
+            this.ImageIndex = this.SelectedImageIndex = ImageIndex;
             this.DType = DType;
             this.DataStart = DataStart;
             this.DataEnd = DataEnd;
@@ -39,7 +39,7 @@ namespace FileOptics.Interface
             this.IType = IType;
             this.Info = Info;
             this.Text = Title;
-            this.ImageKey = ImageKey;
+            this.ImageKey = this.SelectedImageKey = ImageKey;
             this.DType = DType;
             this.DataStart = DataStart;
             this.DataEnd = DataEnd;
