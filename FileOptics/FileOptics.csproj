@@ -105,6 +105,7 @@
     <Content Include="img\tree-block-red.png" />
     <Content Include="img\tree-block-trueblue.png" />
     <Content Include="img\tree-error.png" />
+    <Content Include="img\tree-file.png" />
     <Content Include="img\tree-img.png" />
     <Content Include="img\tree-info.png" />
     <Content Include="img\tree-null.png" />

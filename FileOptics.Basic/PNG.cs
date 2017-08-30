@@ -39,7 +39,7 @@ namespace FileOptics.Basic
             root.Info = root.FilePath;
             root.IType = InfoType.ImageFile;
 
-            root.ImageKey = root.SelectedImageKey = "image";
+            //root.ImageKey = root.SelectedImageKey = "image";
 
             Bridge.AppendNode(
                 new InfoNode("Magic number", "binary",

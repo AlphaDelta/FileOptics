@@ -18,10 +18,11 @@ namespace FileOptics
             InitializeComponent();
 
             imglTree.Images.Add("null", Properties.Resources.tree_null);
+            imglTree.Images.Add("file", Properties.Resources.tree_file);
+            imglTree.Images.Add("image", Properties.Resources.tree_img);
             imglTree.Images.Add("info", Properties.Resources.tree_info);
             imglTree.Images.Add("error", Properties.Resources.tree_error);
             imglTree.Images.Add("binary", Properties.Resources.tree_binary);
-            imglTree.Images.Add("image", Properties.Resources.tree_img);
             imglTree.Images.Add("block", Properties.Resources.tree_block_blue);
             imglTree.Images.Add("block-orange", Properties.Resources.tree_block_orange);
             imglTree.Images.Add("block-red", Properties.Resources.tree_block_red);
@@ -149,7 +150,7 @@ namespace FileOptics
                             else
                             {
                                 fs.Seek(0, SeekOrigin.Begin);
-                                RootInfoNode root = new RootInfoNode(fname, files[0], Root.Modules[valid[0]]);
+                                RootInfoNode root = new RootInfoNode(fname, files[0], Root.Modules[valid[0]]) { ImageKey = "file", SelectedImageKey = "file" };
                                 Root.Modules[valid[0]].Read(root, fs);
                                 Bridge.AddRootNode(root);
                             }
