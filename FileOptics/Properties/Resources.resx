@@ -136,6 +136,9 @@
   <data name="tree_block_trueblue" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\img\tree-block-trueblue.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="tree_byte" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\img\tree-byte.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="tree_error" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\img\tree-error.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -148,7 +151,13 @@
   <data name="tree_info" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\img\tree-info.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="tree_int" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\img\tree-int.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="tree_null" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\img\tree-null.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tree_str" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\img\tree-str.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

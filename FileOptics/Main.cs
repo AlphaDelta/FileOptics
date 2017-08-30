@@ -28,6 +28,9 @@ namespace FileOptics
             imglTree.Images.Add("block-red", Properties.Resources.tree_block_red);
             imglTree.Images.Add("block-purple", Properties.Resources.tree_block_purple);
             imglTree.Images.Add("block-trueblue", Properties.Resources.tree_block_trueblue);
+            imglTree.Images.Add("int", Properties.Resources.tree_int);
+            imglTree.Images.Add("byte", Properties.Resources.tree_byte);
+            imglTree.Images.Add("str", Properties.Resources.tree_str);
 
             //tree.KeyDown += delegate
             //{

@@ -217,23 +217,35 @@ namespace FileOptics.Basic
                             break;
                     }
 
-                    Bridge.AppendNode(
-                        new InfoNode("Header information", "info",
-                            InfoType.Generic,
-                            new GenericInfo(
-                                "Header Information",
-                                String.Format("The image has a width of {0} and a height of {1}.\r\nIt has a bitdepth of {2} bits per sample.\r\nIt is {3}.\r\nThe image data is compressed using {4} compression algorithm.\r\nA filter method of '{5}' is specified.\r\nThe image {6} interlaced.",
-                                    xdim,
-                                    ydim,
-                                    hdrb[0x08],
-                                    ctype,
-                                    hdrb[0x0A] == 0 ? "the DEFLATE" : "an unknown",
-                                    hdrb[0x0B],
-                                    hdrb[0x0C] == 0 ? "is not" : "is")
-                            ),
+                    Bridge.AppendNode(new InfoNode("Chunk length", "int", InfoType.None, null, DataType.Critical, n.DataStart, n.DataStart + 3), n);
+                    Bridge.AppendNode(new InfoNode("Chunk name", "str", InfoType.None, null, DataType.Critical, n.DataStart + 4, n.DataStart + 7), n);
+                    InfoNode nin = new InfoNode("Header information", "info",
+                        InfoType.None, null,
+                        //InfoType.Generic,
+                            //new GenericInfo(
+                            //    "Header Information",
+                            //    String.Format("The image has a width of {0} and a height of {1}.\r\nIt has a bitdepth of {2} bits per sample.\r\nIt is {3}.\r\nThe image data is compressed using {4} compression algorithm.\r\nA filter method of '{5}' is specified.\r\nThe image {6} interlaced.",
+                            //        xdim,
+                            //        ydim,
+                            //        hdrb[0x08],
+                            //        ctype,
+                            //        hdrb[0x0A] == 0 ? "the DEFLATE" : "an unknown",
+                            //        hdrb[0x0B],
+                            //        hdrb[0x0C] == 0 ? "is not" : "is")
+                            //),
                             DataType.Critical,
-                            n.DataStart + 8, n.DataEnd - 4),
-                        n);
+                            n.DataStart + 8, n.DataEnd - 4);
+                    Bridge.AppendNode(nin, n);
+
+                    Bridge.AppendNode(new InfoNode("Image width", "int", InfoType.Generic, new GenericInfo("Image Width", xdim.ToString() + "px"), DataType.Critical, n.DataStart + 8, n.DataStart + 11), nin);
+                    Bridge.AppendNode(new InfoNode("Image height", "int", InfoType.Generic, new GenericInfo("Image Height", ydim.ToString() + "px"), DataType.Critical, n.DataStart + 12, n.DataStart + 15), nin);
+                    Bridge.AppendNode(new InfoNode("Bit depth", "byte", InfoType.Generic, new GenericInfo("Bit Depth", hdrb[0x08].ToString() + " bits per sample"), DataType.Critical, n.DataStart + 16, n.DataStart + 16), nin);
+                    Bridge.AppendNode(new InfoNode("Color type", "byte", InfoType.Generic, new GenericInfo("Color Type", "This is " + ctype), DataType.Critical, n.DataStart + 17, n.DataStart + 17), nin);
+                    Bridge.AppendNode(new InfoNode("Compression method", "byte", InfoType.Generic, new GenericInfo("Compression Method", String.Format("This image uses {0} compression algorithm.", hdrb[0x0A] == 0 ? "the DEFLATE" : "an unknown")), DataType.Critical, n.DataStart + 18, n.DataStart + 18), nin);
+                    Bridge.AppendNode(new InfoNode("Filter type", "byte", InfoType.Generic, new GenericInfo("Filter Type", hdrb[0x0B].ToString()), DataType.Critical, n.DataStart + 19, n.DataStart + 19), nin);
+                    Bridge.AppendNode(new InfoNode("Interlacing method", "byte", InfoType.Generic, new GenericInfo("Interlacing Method", String.Format("This image is{0} interlaced.", hdrb[0x0C] == 0 ? " not" : "")), DataType.Critical, n.DataStart + 20, n.DataStart + 20), nin);
+
+                    Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
                 }
                 else if (n.Text == "tEXt")
                 {

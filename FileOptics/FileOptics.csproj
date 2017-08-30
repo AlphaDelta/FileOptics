@@ -104,11 +104,14 @@
     <Content Include="img\tree-block-purple.png" />
     <Content Include="img\tree-block-red.png" />
     <Content Include="img\tree-block-trueblue.png" />
+    <Content Include="img\tree-byte.png" />
     <Content Include="img\tree-error.png" />
     <Content Include="img\tree-file.png" />
     <Content Include="img\tree-img.png" />
     <Content Include="img\tree-info.png" />
+    <Content Include="img\tree-int.png" />
     <Content Include="img\tree-null.png" />
+    <Content Include="img\tree-str.png" />
     <Content Include="nayuki-sha256-w32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
