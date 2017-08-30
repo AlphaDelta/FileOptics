@@ -33,7 +33,6 @@
             this.tree = new System.Windows.Forms.TreeView();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pInfoImage = new System.Windows.Forms.Panel();
-            this.imgInfo = new System.Windows.Forms.PictureBox();
             this.pInfoGeneric = new System.Windows.Forms.Panel();
             this.txtInfoGenericBody = new System.Windows.Forms.TextBox();
             this.lblInfoGenericTitle = new System.Windows.Forms.Label();
@@ -42,6 +41,7 @@
             this.pInfoTable = new System.Windows.Forms.Panel();
             this.lvInfoTable = new System.Windows.Forms.ListView();
             this.imglTree = new System.Windows.Forms.ImageList(this.components);
+            this.imgInfo = new System.Windows.Forms.PictureBox();
             this.hexBox1 = new HexBoxLib.HexBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -50,10 +50,10 @@
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.pInfoImage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).BeginInit();
             this.pInfoGeneric.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.pInfoTable.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -91,6 +91,7 @@
             this.tree.Location = new System.Drawing.Point(0, 4);
             this.tree.Name = "tree";
             this.tree.SelectedImageIndex = 0;
+            this.tree.ShowLines = false;
             this.tree.Size = new System.Drawing.Size(156, 406);
             this.tree.TabIndex = 0;
             this.tree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tree_AfterSelect);
@@ -127,15 +128,6 @@
             this.pInfoImage.Size = new System.Drawing.Size(64, 64);
             this.pInfoImage.TabIndex = 0;
             this.pInfoImage.Visible = false;
-            // 
-            // imgInfo
-            // 
-            this.imgInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.imgInfo.Location = new System.Drawing.Point(0, 0);
-            this.imgInfo.Name = "imgInfo";
-            this.imgInfo.Size = new System.Drawing.Size(64, 64);
-            this.imgInfo.TabIndex = 0;
-            this.imgInfo.TabStop = false;
             // 
             // pInfoGeneric
             // 
@@ -214,6 +206,15 @@
             this.imglTree.ImageSize = new System.Drawing.Size(16, 16);
             this.imglTree.TransparentColor = System.Drawing.Color.Transparent;
             // 
+            // imgInfo
+            // 
+            this.imgInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.imgInfo.Location = new System.Drawing.Point(0, 0);
+            this.imgInfo.Name = "imgInfo";
+            this.imgInfo.Size = new System.Drawing.Size(64, 64);
+            this.imgInfo.TabIndex = 0;
+            this.imgInfo.TabStop = false;
+            // 
             // hexBox1
             // 
             this.hexBox1.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
@@ -247,12 +248,12 @@
             this.splitContainer2.Panel2.ResumeLayout(false);
             this.splitContainer2.ResumeLayout(false);
             this.pInfoImage.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).EndInit();
             this.pInfoGeneric.ResumeLayout(false);
             this.pInfoGeneric.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.pInfoTable.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

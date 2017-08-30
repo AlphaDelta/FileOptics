@@ -101,7 +101,11 @@
     <Content Include="img\tree-binary.png" />
     <Content Include="img\tree-block-blue.png" />
     <Content Include="img\tree-block-orange.png" />
+    <Content Include="img\tree-block-purple.png" />
+    <Content Include="img\tree-block-red.png" />
+    <Content Include="img\tree-block-trueblue.png" />
     <Content Include="img\tree-error.png" />
+    <Content Include="img\tree-img.png" />
     <Content Include="img\tree-info.png" />
     <Content Include="img\tree-null.png" />
     <Content Include="nayuki-sha256-w32.dll">

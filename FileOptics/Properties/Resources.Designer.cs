@@ -93,9 +93,49 @@ namespace FileOptics.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap tree_block_purple {
+            get {
+                object obj = ResourceManager.GetObject("tree_block_purple", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap tree_block_red {
+            get {
+                object obj = ResourceManager.GetObject("tree_block_red", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap tree_block_trueblue {
+            get {
+                object obj = ResourceManager.GetObject("tree_block_trueblue", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap tree_error {
             get {
                 object obj = ResourceManager.GetObject("tree_error", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap tree_img {
+            get {
+                object obj = ResourceManager.GetObject("tree_img", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

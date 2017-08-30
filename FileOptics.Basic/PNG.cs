@@ -39,6 +39,8 @@ namespace FileOptics.Basic
             root.Info = root.FilePath;
             root.IType = InfoType.ImageFile;
 
+            root.ImageKey = root.SelectedImageKey = "image";
+
             Bridge.AppendNode(
                 new InfoNode("Magic number", "binary",
                     InfoType.Generic,
@@ -151,7 +153,7 @@ namespace FileOptics.Basic
                         InfoType.Generic,
                         new GenericInfo(name + " Chunk", sb.ToString()),
                         dtype,
-                        start, end),
+                        start, end) { SelectedImageKey = "block-trueblue" },
                     root);
             } while (name != "IEND");
 
