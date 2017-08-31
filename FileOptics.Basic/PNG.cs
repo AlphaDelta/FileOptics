@@ -181,7 +181,7 @@ namespace FileOptics.Basic
 
                 if (datalength < 1)
                 {
-                    Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
+                    Checksum(n);
                     continue;
                 }
 
@@ -196,6 +196,7 @@ namespace FileOptics.Basic
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
+                        Checksum(n);
                         continue;
                     }
 
@@ -304,6 +305,7 @@ namespace FileOptics.Basic
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
+                        Checksum(n);
                         continue;
                     }
 
@@ -339,6 +341,7 @@ namespace FileOptics.Basic
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
+                        Checksum(n);
                         continue;
                     }
 
@@ -369,6 +372,7 @@ namespace FileOptics.Basic
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
+                        Checksum(n);
                         continue;
                     }
 
@@ -411,6 +415,7 @@ namespace FileOptics.Basic
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
+                        Checksum(n);
                         continue;
                     }
 
@@ -467,7 +472,7 @@ namespace FileOptics.Basic
                 else if (colortype == 0xFF)
                 {
                     Bridge.AppendNode(new InfoNode("Unknown Data", "unknown", InfoType.None, null, DataType.Critical, n.DataStart + 8, n.DataEnd - 4), n);
-                    Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
+                    Checksum(n);
                     continue;
                 }
                 else if (n.Text == "tRNS")
@@ -490,7 +495,7 @@ namespace FileOptics.Basic
                                 DataType.Critical,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
-
+                        Checksum(n);
                         continue;
                     }
 
@@ -505,6 +510,7 @@ namespace FileOptics.Basic
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
+                        Checksum(n);
                         continue;
                     }
                     if (datalength != trnslen)
@@ -516,6 +522,7 @@ namespace FileOptics.Basic
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
+                        Checksum(n);
                         continue;
                     }
 
@@ -551,10 +558,15 @@ namespace FileOptics.Basic
                     Bridge.AppendNode(new InfoNode("Unknown Data", "unknown", InfoType.None, null, DataType.Critical, n.DataStart + 8, n.DataEnd - 4), n);
                 }
 
-                Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
+                Checksum(n);
             }
 
             return true;
+        }
+
+        void Checksum(InfoNode n)
+        {
+            Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
         }
 
         public void Write(RootInfoNode root, Stream sout)
