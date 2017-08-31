@@ -174,7 +174,14 @@ namespace FileOptics.Basic
                 int datastart = (int)(n.DataStart + 8);
                 int datalength = (int)((n.DataEnd - 4) - datastart + 1);
 
-                if (datalength < 1) continue;
+                Bridge.AppendNode(new InfoNode("Chunk length", "int", InfoType.None, null, DataType.Critical, n.DataStart, n.DataStart + 3), n);
+                Bridge.AppendNode(new InfoNode("Chunk name", "str", InfoType.None, null, DataType.Critical, n.DataStart + 4, n.DataStart + 7), n);
+
+                if (datalength < 1)
+                {
+                    Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
+                    continue;
+                }
 
                 if (n.Text == "IHDR")
                 {
@@ -217,8 +224,6 @@ namespace FileOptics.Basic
                             break;
                     }
 
-                    Bridge.AppendNode(new InfoNode("Chunk length", "int", InfoType.None, null, DataType.Critical, n.DataStart, n.DataStart + 3), n);
-                    Bridge.AppendNode(new InfoNode("Chunk name", "str", InfoType.None, null, DataType.Critical, n.DataStart + 4, n.DataStart + 7), n);
                     InfoNode nin = new InfoNode("Header information", "info",
                         InfoType.None, null,
                         //InfoType.Generic,
@@ -244,8 +249,6 @@ namespace FileOptics.Basic
                     Bridge.AppendNode(new InfoNode("Compression method", "byte", InfoType.Generic, new GenericInfo("Compression Method", String.Format("This image uses {0} compression algorithm.", hdrb[0x0A] == 0 ? "the DEFLATE" : "an unknown")), DataType.Critical, n.DataStart + 18, n.DataStart + 18), nin);
                     Bridge.AppendNode(new InfoNode("Filter type", "byte", InfoType.Generic, new GenericInfo("Filter Type", hdrb[0x0B].ToString()), DataType.Critical, n.DataStart + 19, n.DataStart + 19), nin);
                     Bridge.AppendNode(new InfoNode("Interlacing method", "byte", InfoType.Generic, new GenericInfo("Interlacing Method", String.Format("This image is{0} interlaced.", hdrb[0x0C] == 0 ? " not" : "")), DataType.Critical, n.DataStart + 20, n.DataStart + 20), nin);
-
-                    Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
                 }
                 else if (n.Text == "tEXt")
                 {
@@ -459,7 +462,11 @@ namespace FileOptics.Basic
                  * we dont actually need to display it thus we don't need it to adhere to
                  * the PNG specification we just need it to be coherent enough to read to EOF.
                  * */
-                else if (colortype == 0xFF) continue;
+                else if (colortype == 0xFF)
+                {
+                    Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
+                    continue;
+                }
                 else if (n.Text == "tRNS")
                 {
                     byte[] trnsb;
@@ -536,6 +543,8 @@ namespace FileOptics.Basic
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
                 }
+
+                Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
             }
 
             return true;
