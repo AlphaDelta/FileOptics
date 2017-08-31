@@ -31,6 +31,7 @@ namespace FileOptics
             imglTree.Images.Add("int", Properties.Resources.tree_int);
             imglTree.Images.Add("byte", Properties.Resources.tree_byte);
             imglTree.Images.Add("str", Properties.Resources.tree_str);
+            imglTree.Images.Add("unknown", Properties.Resources.tree_unknown);
 
             //tree.KeyDown += delegate
             //{

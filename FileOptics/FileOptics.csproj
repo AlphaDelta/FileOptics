@@ -112,6 +112,7 @@
     <Content Include="img\tree-int.png" />
     <Content Include="img\tree-null.png" />
     <Content Include="img\tree-str.png" />
+    <Content Include="img\tree-unknown.png" />
     <Content Include="nayuki-sha256-w32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

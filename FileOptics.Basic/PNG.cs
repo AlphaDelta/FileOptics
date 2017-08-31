@@ -171,6 +171,8 @@ namespace FileOptics.Basic
             byte colortype = 0xFF;
             foreach (InfoNode n in root.Nodes)
             {
+                if(n.Text == "Magic number") continue;
+
                 int datastart = (int)(n.DataStart + 8);
                 int datalength = (int)((n.DataEnd - 4) - datastart + 1);
 
@@ -464,6 +466,7 @@ namespace FileOptics.Basic
                  * */
                 else if (colortype == 0xFF)
                 {
+                    Bridge.AppendNode(new InfoNode("Unknown Data", "unknown", InfoType.None, null, DataType.Critical, n.DataStart + 8, n.DataEnd - 4), n);
                     Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
                     continue;
                 }
@@ -542,6 +545,10 @@ namespace FileOptics.Basic
                             DataType.Critical,
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
+                }
+                else
+                {
+                    Bridge.AppendNode(new InfoNode("Unknown Data", "unknown", InfoType.None, null, DataType.Critical, n.DataStart + 8, n.DataEnd - 4), n);
                 }
 
                 Bridge.AppendNode(new InfoNode("Chunk checksum", "int", InfoType.None, null, DataType.Critical, n.DataEnd - 3, n.DataEnd), n);
