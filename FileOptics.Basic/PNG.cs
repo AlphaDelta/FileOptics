@@ -185,6 +185,7 @@ namespace FileOptics.Basic
                     continue;
                 }
 
+                #region IHDR
                 if (n.Text == "IHDR")
                 {
                     if (datalength != 0x0D)
@@ -253,6 +254,8 @@ namespace FileOptics.Basic
                     Bridge.AppendNode(new InfoNode("Filter type", "byte", InfoType.Generic, new GenericInfo("Filter Type", hdrb[0x0B].ToString()), DataType.Critical, n.DataStart + 19, n.DataStart + 19), nin);
                     Bridge.AppendNode(new InfoNode("Interlacing method", "byte", InfoType.Generic, new GenericInfo("Interlacing Method", String.Format("This image is{0} interlaced.", hdrb[0x0C] == 0 ? " not" : "")), DataType.Critical, n.DataStart + 20, n.DataStart + 20), nin);
                 }
+                #endregion
+                #region tEXt
                 else if (n.Text == "tEXt")
                 {
                     stream.Seek(datastart, SeekOrigin.Begin);
@@ -294,6 +297,8 @@ namespace FileOptics.Basic
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
                 }
+                #endregion
+                #region tIME
                 else if (n.Text == "tIME")
                 {
                     if (datalength != 0x07)
@@ -330,6 +335,8 @@ namespace FileOptics.Basic
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
                 }
+                #endregion
+                #region gAMA
                 else if (n.Text == "gAMA")
                 {
                     if (datalength != 0x04)
@@ -361,6 +368,8 @@ namespace FileOptics.Basic
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
                 }
+                #endregion
+                #region PLTE
                 else if (n.Text == "PLTE")
                 {
                     if (datalength > 0x300 || datalength % 3 != 0)
@@ -404,6 +413,8 @@ namespace FileOptics.Basic
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
                 }
+                #endregion
+                #region cHRM
                 else if (n.Text == "cHRM")
                 {
                     if (datalength != 0x20)
@@ -435,16 +446,15 @@ namespace FileOptics.Basic
 
                     float
                     wx = (uwx > 0 ? uwx / 100000f : 0),
-                    wy = (uwx > 0 ? uwx / 100000f : 0),
-                    rx = (uwx > 0 ? uwx / 100000f : 0),
-                    ry = (uwx > 0 ? uwx / 100000f : 0),
-                    gx = (uwx > 0 ? uwx / 100000f : 0),
-                    gy = (uwx > 0 ? uwx / 100000f : 0),
-                    bx = (uwx > 0 ? uwx / 100000f : 0),
-                    by = (uwx > 0 ? uwx / 100000f : 0);
+                    wy = (uwy > 0 ? uwy / 100000f : 0),
+                    rx = (urx > 0 ? urx / 100000f : 0),
+                    ry = (ury > 0 ? ury / 100000f : 0),
+                    gx = (ugx > 0 ? ugx / 100000f : 0),
+                    gy = (ugy > 0 ? ugy / 100000f : 0),
+                    bx = (ubx > 0 ? ubx / 100000f : 0),
+                    by = (uby > 0 ? uby / 100000f : 0);
 
-                    Bridge.AppendNode(
-                        new InfoNode("Chromatic information", "info",
+                    InfoNode cn = new InfoNode("Chromatic information", "info",
                             InfoType.Table,
                             new TableInfo(View.Details, new string[] { "Key", "Value" }, new ListViewItem[] {
                                 new ListViewItem(new string[] { "White X", wx.ToString() }),
@@ -457,8 +467,71 @@ namespace FileOptics.Basic
                                 new ListViewItem(new string[] { "Blue Y", by.ToString() })
                             }),
                             DataType.Critical,
-                            n.DataStart + 8, n.DataEnd - 4),
+                            n.DataStart + 8, n.DataEnd - 4);
+
+                    Bridge.AppendNode(
+                        cn,
                         n);
+
+                    Bridge.AppendNode(new InfoNode("White X", "int", InfoType.None, null, DataType.Critical, n.DataStart + 0x08, n.DataStart + 0x0B), cn);
+                    Bridge.AppendNode(new InfoNode("White Y", "int", InfoType.None, null, DataType.Critical, n.DataStart + 0x0C, n.DataStart + 0x0F), cn);
+                    Bridge.AppendNode(new InfoNode("Red X", "int", InfoType.None, null, DataType.Critical, n.DataStart + 0x10, n.DataStart + 0x13), cn);
+                    Bridge.AppendNode(new InfoNode("Red Y", "int", InfoType.None, null, DataType.Critical, n.DataStart + 0x14, n.DataStart + 0x17), cn);
+                    Bridge.AppendNode(new InfoNode("Green X", "int", InfoType.None, null, DataType.Critical, n.DataStart + 0x18, n.DataStart + 0x1B), cn);
+                    Bridge.AppendNode(new InfoNode("Green Y", "int", InfoType.None, null, DataType.Critical, n.DataStart + 0x1C, n.DataStart + 0x1F), cn);
+                    Bridge.AppendNode(new InfoNode("Blue X", "int", InfoType.None, null, DataType.Critical, n.DataStart + 0x20, n.DataStart + 0x23), cn);
+                    Bridge.AppendNode(new InfoNode("Blue Y", "int", InfoType.None, null, DataType.Critical, n.DataStart + 0x24, n.DataStart + 0x27), cn);
+                }
+                #endregion
+                #region sBIT
+                else if (n.Text == "sBIT")
+                {
+                    if (datalength < 0x01 || datalength > 0x04)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error", "error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", "Could not parse significant bits information. sBIT chunk must have a length between 0x01 and 0x04."),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                        Checksum(n);
+                        continue;
+                    }
+
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    byte[] sbitb = new byte[datalength];
+                    stream.Read(sbitb, 0, datalength);
+
+                    InfoNode sn = new InfoNode("Significant bits information", "info",
+                            InfoType.None,
+                            null,
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4);
+
+                    Bridge.AppendNode(
+                        sn,
+                        n);
+
+                    if (datalength < 3)
+                    {
+                        Bridge.AppendNode(new InfoNode("Significant greyscale bits", "byte", InfoType.Generic, new GenericInfo("Significant Greyscale Bits", sbitb[0].ToString() + " bits"), DataType.Critical, n.DataStart + 8, n.DataStart + 8), sn);
+                        if (datalength == 2)
+                            Bridge.AppendNode(new InfoNode("Significant alpha bits", "byte", InfoType.Generic, new GenericInfo("Significant Alpha Bits", sbitb[1].ToString() + " bits"), DataType.Critical, n.DataStart + 9, n.DataStart + 9), sn);
+                    }
+                    else
+                    {
+                        Bridge.AppendNode(new InfoNode("Significant red bits", "byte", InfoType.Generic, new GenericInfo("Significant Red Bits", sbitb[0].ToString() + " bits"), DataType.Critical, n.DataStart + 8, n.DataStart + 8), sn);
+                        Bridge.AppendNode(new InfoNode("Significant green bits", "byte", InfoType.Generic, new GenericInfo("Significant Green Bits", sbitb[1].ToString() + " bits"), DataType.Critical, n.DataStart + 9, n.DataStart + 9), sn);
+                        Bridge.AppendNode(new InfoNode("Significant blue bits", "byte", InfoType.Generic, new GenericInfo("Significant Blue Bits", sbitb[2].ToString() + " bits"), DataType.Critical, n.DataStart + 10, n.DataStart + 10), sn);
+                        if (datalength == 4)
+                            Bridge.AppendNode(new InfoNode("Significant alpha bits", "byte", InfoType.Generic, new GenericInfo("Significant Alpha Bits", sbitb[3].ToString() + " bits"), DataType.Critical, n.DataStart + 11, n.DataStart + 11), sn);
+                    }
+                }
+                #endregion
+                else if (n.Text == "IDAT")
+                {
+                    Bridge.AppendNode(new InfoNode("Image Data", "binary", InfoType.None, null, DataType.Critical, n.DataStart + 8, n.DataEnd - 4), n);
                 }
 
                 /* *
@@ -475,6 +548,7 @@ namespace FileOptics.Basic
                     Checksum(n);
                     continue;
                 }
+                #region tRNS
                 else if (n.Text == "tRNS")
                 {
                     byte[] trnsb;
@@ -553,6 +627,7 @@ namespace FileOptics.Basic
                             n.DataStart + 8, n.DataEnd - 4),
                         n);
                 }
+                #endregion
                 else
                 {
                     Bridge.AppendNode(new InfoNode("Unknown Data", "unknown", InfoType.None, null, DataType.Critical, n.DataStart + 8, n.DataEnd - 4), n);

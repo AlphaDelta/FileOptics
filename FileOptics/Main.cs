@@ -231,7 +231,7 @@ namespace FileOptics
                 }
 
                 Color ghost = Color.FromArgb(0xDD, 0xDD, 0xDD);
-                foreach (InfoNode irn in rin.Nodes)
+                foreach (InfoNode irn in inode.Parent.Nodes)
                     hexBox1.Highlights.Add(new HexBoxLib.Highlight((int)irn.DataStart, (int)irn.DataEnd, ghost));
 
                 hexBox1.Highlights.Add(new HexBoxLib.Highlight((int)inode.DataStart, (int)inode.DataEnd, inode.HighlightColor));
