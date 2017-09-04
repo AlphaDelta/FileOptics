@@ -344,7 +344,7 @@ namespace FileOptics.Basic
                         Bridge.AppendNode(
                             new InfoNode("Error", "error",
                                 InfoType.Generic,
-                                new GenericInfo("Error", "Could not parse gamma information. gAMA chunk must have a length of 0x01."),
+                                new GenericInfo("Error", "Could not parse gamma information. gAMA chunk must have a length of 0x04."),
                                 DataType.Error,
                                 n.DataStart + 8, n.DataEnd - 4),
                             n);
@@ -527,6 +527,124 @@ namespace FileOptics.Basic
                         if (datalength == 4)
                             Bridge.AppendNode(new InfoNode("Significant alpha bits", "byte", InfoType.Generic, new GenericInfo("Significant Alpha Bits", sbitb[3].ToString() + " bits"), DataType.Critical, n.DataStart + 11, n.DataStart + 11), sn);
                     }
+                }
+                #endregion
+                #region sRGB
+                else if (n.Text == "sRGB")
+                {
+                    if (datalength != 0x01)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error", "error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", "Could not parse rendering intent information. gAMA chunk must have a length of 0x01."),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                        Checksum(n);
+                        continue;
+                    }
+
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    byte[] srgbb = new byte[0x01];
+                    stream.Read(srgbb, 0, 0x01);
+
+                    string intent = "";
+                    switch (srgbb[0])
+                    {
+                        case 0x00:
+                            intent = "perceptual";
+                            break;
+                        case 0x01:
+                            intent = "relative colorimetric";
+                            break;
+                        case 0x02:
+                            intent = "saturation";
+                            break;
+                        case 0x03:
+                            intent = "absolute colorimetric";
+                            break;
+                    }
+
+                    Bridge.AppendNode(
+                        new InfoNode("Rendering intent information", "info",
+                            InfoType.Generic,
+                            new GenericInfo("Rendering Intent", String.Format("This chunk specifies the desired rendering intent (defined in the sRGB standard) to be '{0}'.", intent)),
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4),
+                        n);
+                }
+                #endregion
+                #region iCCP
+                else if (n.Text == "iCCP")
+                {
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    //this should never realistically be needed
+                    byte[] tb = new byte[0x100];
+                    int remaining = datalength, read = 0;
+                    StringBuilder key = new StringBuilder();
+                    int offset = 0;
+                    bool finished = false;
+                    while (remaining > 0)
+                    {
+                        read = stream.Read(tb, 0, remaining > 0x100 ? 0x100 : remaining);
+                        remaining -= read;
+
+                        for (int i = 0; i < read; i++)
+                        {
+                            offset++;
+                            if (tb[i] == 0x00)
+                            {
+                                if (i > 0)
+                                    key.Append(Encoding.ASCII.GetString(tb, 0, i));
+                                finished = true;
+                                break;
+                            }
+                        }
+                        if (finished) break;
+                        key.Append(Encoding.ASCII.GetString(tb, 0, read));
+                    }
+
+                    InfoNode iccpn = new InfoNode("ICC profile", "info",
+                            InfoType.None,
+                            null,
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4);
+
+                    Bridge.AppendNode(
+                        iccpn,
+                        n);
+
+                    //StringBuilder profile = new StringBuilder();
+
+                    stream.Seek(datastart + offset + 3, SeekOrigin.Begin);
+
+                    int profilelen = (int)(n.DataEnd) - (datastart + offset);
+                    byte[] pb = new byte[profilelen];
+                    stream.Read(pb, 0, profilelen);
+
+                    List<byte> outp = new List<byte>();
+                    using(MemoryStream ms = new MemoryStream(pb))
+                    using (System.IO.Compression.DeflateStream deflate = new System.IO.Compression.DeflateStream(ms, System.IO.Compression.CompressionMode.Decompress))
+                    {
+                        int dread;
+                        byte[] db = new byte[0x100];
+                        while ((dread = deflate.Read(db, 0, 0x100)) > 0)
+                        {
+                            if (dread == 0x100)
+                                outp.AddRange(db);
+                            else
+                                for (int i = 0; i < dread; i++)
+                                    outp.Add(db[i]);
+                            //profile.Append(Encoding.ASCII.GetString(db, 0, dread));
+                        }
+                    }
+
+                    pb = null;
+
+                    Bridge.AppendNode(new InfoNode("Profile name", "str", InfoType.Generic, new GenericInfo("Profile Name", key.ToString()), DataType.Critical, n.DataStart + 8, n.DataStart + 8 + offset - 1), iccpn);
+                    Bridge.AppendNode(new InfoNode("Compression method", "byte", InfoType.None, null, DataType.Critical, n.DataStart + 8 + offset, n.DataStart + 8 + offset), iccpn);
+                    Bridge.AppendNode(new InfoNode("ICC profile body", "binary", InfoType.Binary, outp.ToArray(), DataType.Critical, n.DataStart + 8 + offset + 1, n.DataEnd - 4), iccpn);
                 }
                 #endregion
                 else if (n.Text == "IDAT")

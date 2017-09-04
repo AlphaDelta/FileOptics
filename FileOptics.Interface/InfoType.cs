@@ -7,6 +7,7 @@ namespace FileOptics.Interface
     public enum InfoType
     {
         Generic, //GenericInfo
+        Binary, //byte[]
         Text, //string
         Image, //Image
         ImageFile, //string

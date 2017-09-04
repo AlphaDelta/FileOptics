@@ -47,6 +47,9 @@ namespace FileOptics
                     main.lblInfoGenericTitle.Text = ((GenericInfo)info).Title;
                     main.txtInfoGenericBody.Text = ((GenericInfo)info).Body;
                     break;
+                case InfoType.Binary:
+                    main.hbInfo.ReadBytes((byte[])info);
+                    break;
                 case InfoType.ImageFile:
                     main.imgInfo.Load((string)info);
                     if (imgstream != null)
@@ -122,6 +125,7 @@ namespace FileOptics
             switch (type)
             {
                 case InfoType.Generic: p = main.pInfoGeneric; break;
+                case InfoType.Binary: p = main.pInfoBinary; break;
                 case InfoType.Image:
                 case InfoType.ImageFile:
                 case InfoType.ImageStream:
