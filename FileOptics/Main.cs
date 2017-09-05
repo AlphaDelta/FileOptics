@@ -33,6 +33,17 @@ namespace FileOptics
             imglTree.Images.Add("str", Properties.Resources.tree_str);
             imglTree.Images.Add("unknown", Properties.Resources.tree_unknown);
 
+            imgInfo.Resize += delegate(object sender, EventArgs e)
+            {
+                if (imgInfo.Image == null) return;
+
+                if (imgInfo.Width > imgInfo.Image.Width &&
+                    imgInfo.Height > imgInfo.Image.Height)
+                    imgInfo.SizeMode = PictureBoxSizeMode.CenterImage;
+                else
+                    imgInfo.SizeMode = PictureBoxSizeMode.Zoom;
+            };
+
             //tree.KeyDown += delegate
             //{
             //    RootInfoNode rin = new RootInfoNode("Generic root", "FileOptics.exe", null);

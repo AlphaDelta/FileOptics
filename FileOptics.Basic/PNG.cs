@@ -697,6 +697,51 @@ namespace FileOptics.Basic
                     }
                 }
                 #endregion
+                #region pHYs
+                else if (n.Text == "pHYs")
+                {
+                    if (datalength != 0x09)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error", "error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", "Could not parse physical pixel dimensions information. pHYs chunk must have a length of 0x09."),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                        Checksum(n);
+                        continue;
+                    }
+
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    byte[] physb = new byte[0x09];
+                    stream.Read(physb, 0, 0x09);
+
+                    uint xdim = (uint)physb[0] << 0x18 | (uint)physb[1] << 0x10 | (uint)physb[2] << 0x08 | (uint)physb[3];
+                    uint ydim = (uint)physb[4] << 0x18 | (uint)physb[5] << 0x10 | (uint)physb[6] << 0x08 | (uint)physb[7];
+
+                    uint dpix = (uint)Math.Round(xdim * 0.0254);
+                    uint dpiy = (uint)Math.Round(ydim * 0.0254);
+
+                    InfoNode pn = new InfoNode("Physical pixel dimensions information", "info",
+                            InfoType.Generic,
+                            new GenericInfo("Physical Dimensions Information",
+                                (physb[8] == 1 ?
+                                String.Format("This chunk specifies the physical pixel dimesions as {0}dpi wide, {1}dpi tall.", dpix, dpiy)
+                                :
+                                String.Format("This chunk specifies the physical pixel aspect ratio as {0}:{1}.", xdim, ydim))),
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4);
+
+                    Bridge.AppendNode(
+                        pn,
+                        n);
+
+                    Bridge.AppendNode(new InfoNode("Pixels per unit X", "int", InfoType.Generic, new GenericInfo("Pixels Per Unit X", xdim.ToString()), DataType.Critical, n.DataStart + 8, n.DataStart + 11), pn);
+                    Bridge.AppendNode(new InfoNode("Pixels per unit Y", "int", InfoType.Generic, new GenericInfo("Pixels Per Unit X", ydim.ToString()), DataType.Critical, n.DataStart + 12, n.DataStart + 15), pn);
+                    Bridge.AppendNode(new InfoNode("Unit", "byte", InfoType.Generic, new GenericInfo("Unit", physb[8] == 1 ? "Unit is one metre." : "No unit."), DataType.Critical, n.DataStart + 16, n.DataStart + 16), pn);
+                }
+                #endregion
                 else if (n.Text == "IDAT")
                 {
                     Bridge.AppendNode(new InfoNode("Image Data", "binary", InfoType.None, null, DataType.Critical, n.DataStart + 8, n.DataEnd - 4), n);

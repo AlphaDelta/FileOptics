@@ -64,49 +64,49 @@ namespace FileOptics.Basic
                         if (i >= read) break; //Should have seen that coming
 
                         if((lastmarker & 0xF0) == 0xE0)
-                            Bridge.AppendNode(new InfoNode("APP" + (lastmarker & 0x0F), InfoType.Generic, new GenericInfo("APP" + (lastmarker & 0x0F), "TODO."), ((lastmarker & 0x0F) < 2 ? DataType.Critical : DataType.Metadata), lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("APP" + (lastmarker & 0x0F), "block", InfoType.Generic, new GenericInfo("APP" + (lastmarker & 0x0F), "TODO."), ((lastmarker & 0x0F) < 2 ? DataType.Critical : DataType.Metadata), lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xDA)
-                            Bridge.AppendNode(new InfoNode("SOS", InfoType.Generic, new GenericInfo("SOS", "Marks the start of image data stream."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("SOS", "block", InfoType.Generic, new GenericInfo("SOS", "Marks the start of image data stream."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xDB)
-                            Bridge.AppendNode(new InfoNode("DQT", InfoType.Generic, new GenericInfo("DQT", "Quantization table definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("DQT", "block", InfoType.Generic, new GenericInfo("DQT", "Quantization table definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xDC)
-                            Bridge.AppendNode(new InfoNode("DNL", InfoType.Generic, new GenericInfo("DNL", "Defines number of lines."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("DNL", "block", InfoType.Generic, new GenericInfo("DNL", "Defines number of lines."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xDD)
-                            Bridge.AppendNode(new InfoNode("DRI", InfoType.Generic, new GenericInfo("DRI", "Restart interoperability definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("DRI", "block", InfoType.Generic, new GenericInfo("DRI", "Restart interoperability definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xDE)
-                            Bridge.AppendNode(new InfoNode("DHP", InfoType.Generic, new GenericInfo("DHP", "Hierarchical progression definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("DHP", "block", InfoType.Generic, new GenericInfo("DHP", "Hierarchical progression definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xDF)
-                            Bridge.AppendNode(new InfoNode("EXP", InfoType.Generic, new GenericInfo("EXP", "Expand reference components."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("EXP", "block", InfoType.Generic, new GenericInfo("EXP", "Expand reference components."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xC0)
-                            Bridge.AppendNode(new InfoNode("SOF", InfoType.Generic, new GenericInfo("SOF", "Parameter data relating to frame."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("SOF", "block", InfoType.Generic, new GenericInfo("SOF", "Parameter data relating to frame."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xC4)
-                            Bridge.AppendNode(new InfoNode("DHT", InfoType.Generic, new GenericInfo("DHT", "Huffman table definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("DHT", "block", InfoType.Generic, new GenericInfo("DHT", "Huffman table definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xCC)
-                            Bridge.AppendNode(new InfoNode("DAC", InfoType.Generic, new GenericInfo("DAC", "Arithmetic coding condition(s) definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("DAC", "block", InfoType.Generic, new GenericInfo("DAC", "Arithmetic coding condition(s) definition."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if ((lastmarker & 0xF0) == 0xC0)
-                            Bridge.AppendNode(new InfoNode("SOF" + (lastmarker & 0x0F), InfoType.Generic, new GenericInfo("SOF" + (lastmarker & 0x0F), "Start Of Frame; Parameter data relating to frame."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("SOF" + (lastmarker & 0x0F), "block", InfoType.Generic, new GenericInfo("SOF" + (lastmarker & 0x0F), "Start Of Frame; Parameter data relating to frame."), DataType.Critical, lastmarkerend - 1, lastmarkerend += length), root);
                         else if (lastmarker == 0xFE)
-                            Bridge.AppendNode(new InfoNode("COM", InfoType.Generic, new GenericInfo("COM", "Comment definition."), DataType.Ancillary, lastmarkerend - 1, lastmarkerend += length), root);
+                            Bridge.AppendNode(new InfoNode("COM", "block", InfoType.Generic, new GenericInfo("COM", "Comment definition."), DataType.Ancillary, lastmarkerend - 1, lastmarkerend += length), root);
                     }
                     else if (markerpending)
                     {
                         if (lastmarkerend > 0 && buffer[i] != 0x00 && buffer[i] != 0xFF && (buffer[i] < 0xD0 || buffer[i] > 0xD7) && lastmarkerend != i - 2)
                         {
                             if (lastmarker == 0xDA)
-                                Bridge.AppendNode(new InfoNode("Image data", InfoType.Generic, new GenericInfo("Image Data", "Contains the primary image data."), DataType.Critical, lastmarkerend + 1, pos - 2), root);
+                                Bridge.AppendNode(new InfoNode("Image data", "block-purple", InfoType.Generic, new GenericInfo("Image Data", "Contains the primary image data."), DataType.Critical, lastmarkerend + 1, pos - 2), root);
                             else
-                                Bridge.AppendNode(new InfoNode("Unmarked data", InfoType.Generic, new GenericInfo("Unmarked Data", "This data could not be accounted for, typically useless."), DataType.Useless, lastmarkerend + 1, pos - 2), root);
+                                Bridge.AppendNode(new InfoNode("Unmarked data", "block-orange", InfoType.Generic, new GenericInfo("Unmarked Data", "This data could not be accounted for, typically useless."), DataType.Useless, lastmarkerend + 1, pos - 2), root);
                         }
 
                         if (buffer[i] == 0xD8)
-                            Bridge.AppendNode(new InfoNode("SOI", InfoType.Generic, new GenericInfo("SOI", "Start Of Image marker."), DataType.Critical, pos - 1, pos), root);
+                            Bridge.AppendNode(new InfoNode("SOI", "block", InfoType.Generic, new GenericInfo("SOI", "Start Of Image marker."), DataType.Critical, pos - 1, pos), root);
                         else if (buffer[i] == 0x01)
-                            Bridge.AppendNode(new InfoNode("TEM", InfoType.Generic, new GenericInfo("TEM", "Temporary marker."), DataType.Useless, pos - 1, pos), root);
+                            Bridge.AppendNode(new InfoNode("TEM", "block", InfoType.Generic, new GenericInfo("TEM", "Temporary marker."), DataType.Useless, pos - 1, pos), root);
                         else if (buffer[i] >= 0x02 && buffer[i] <= 0xBF)
-                            Bridge.AppendNode(new InfoNode("RES", InfoType.Generic, new GenericInfo("RES", "Reserved marker."), DataType.Useless, pos - 1, pos), root);
+                            Bridge.AppendNode(new InfoNode("RES", "block", InfoType.Generic, new GenericInfo("RES", "Reserved marker."), DataType.Useless, pos - 1, pos), root);
                         else if (buffer[i] == 0xD9)
                         {
-                            Bridge.AppendNode(new InfoNode("EOI", InfoType.Generic, new GenericInfo("EOI", "End Of Image marker."), DataType.Critical, pos - 1, pos), root);
+                            Bridge.AppendNode(new InfoNode("EOI", "block", InfoType.Generic, new GenericInfo("EOI", "End Of Image marker."), DataType.Critical, pos - 1, pos), root);
                             EOI = true;
                         }
                         else if (
