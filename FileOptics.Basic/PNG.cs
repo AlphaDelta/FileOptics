@@ -647,6 +647,56 @@ namespace FileOptics.Basic
                     Bridge.AppendNode(new InfoNode("ICC profile body", "binary", InfoType.Binary, outp.ToArray(), DataType.Critical, n.DataStart + 8 + offset + 1, n.DataEnd - 4), iccpn);
                 }
                 #endregion
+                #region bKGD
+                else if (n.Text == "bKGD")
+                {
+                    if (datalength != 0x01 && datalength != 0x02 && datalength != 0x06)
+                    {
+                        Bridge.AppendNode(
+                            new InfoNode("Error", "error",
+                                InfoType.Generic,
+                                new GenericInfo("Error", "Could not parse background color information. bKGD chunk must have a length of either 0x01, 0x02, or 0x06."),
+                                DataType.Error,
+                                n.DataStart + 8, n.DataEnd - 4),
+                            n);
+                        Checksum(n);
+                        continue;
+                    }
+
+                    stream.Seek(datastart, SeekOrigin.Begin);
+                    byte[] bkgdb = new byte[datalength];
+                    stream.Read(bkgdb, 0, datalength);
+
+                    InfoNode sn = new InfoNode("Background color information", "info",
+                            InfoType.None,
+                            null,
+                            DataType.Critical,
+                            n.DataStart + 8, n.DataEnd - 4);
+
+                    Bridge.AppendNode(
+                        sn,
+                        n);
+
+                    if (datalength == 1)
+                    {
+                        Bridge.AppendNode(new InfoNode("Palette index", "byte", InfoType.Generic, new GenericInfo("Palette Index", bkgdb[0].ToString()), DataType.Critical, n.DataStart + 8, n.DataStart + 8), sn);
+                    }
+                    else if (datalength == 2)
+                    {
+                        int w = bkgdb[0] << 0x08 | (int)bkgdb[1];
+                        Bridge.AppendNode(new InfoNode("White value", "int", InfoType.Generic, new GenericInfo("White Value", w.ToString()), DataType.Critical, n.DataStart + 8, n.DataStart + 9), sn);
+                    }
+                    else if (datalength == 6)
+                    {
+                        int r = bkgdb[0] << 0x08 | (int)bkgdb[1];
+                        int g = bkgdb[2] << 0x08 | (int)bkgdb[3];
+                        int b = bkgdb[4] << 0x08 | (int)bkgdb[5];
+                        Bridge.AppendNode(new InfoNode("Red value", "int", InfoType.Generic, new GenericInfo("Red Value", r.ToString()), DataType.Critical, n.DataStart + 8, n.DataStart + 9), sn);
+                        Bridge.AppendNode(new InfoNode("Green value", "int", InfoType.Generic, new GenericInfo("Green Value", g.ToString()), DataType.Critical, n.DataStart + 10, n.DataStart + 11), sn);
+                        Bridge.AppendNode(new InfoNode("Blue value", "int", InfoType.Generic, new GenericInfo("Blue Value", b.ToString()), DataType.Critical, n.DataStart + 12, n.DataStart + 13), sn);
+                    }
+                }
+                #endregion
                 else if (n.Text == "IDAT")
                 {
                     Bridge.AppendNode(new InfoNode("Image Data", "binary", InfoType.None, null, DataType.Critical, n.DataStart + 8, n.DataEnd - 4), n);
