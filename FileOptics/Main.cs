@@ -23,10 +23,10 @@ namespace FileOptics
             imglTree.Images.Add("info", Properties.Resources.tree_info);
             imglTree.Images.Add("error", Properties.Resources.tree_error);
             imglTree.Images.Add("binary", Properties.Resources.tree_binary);
-            imglTree.Images.Add("block", Properties.Resources.tree_block_blue);
-            imglTree.Images.Add("block-orange", Properties.Resources.tree_block_orange);
-            imglTree.Images.Add("block-red", Properties.Resources.tree_block_red);
-            imglTree.Images.Add("block-purple", Properties.Resources.tree_block_purple);
+            imglTree.Images.Add("block", Properties.Resources.tree_block_blue); //Regular data block
+            imglTree.Images.Add("block-orange", Properties.Resources.tree_block_orange); //Data block that could not be accounted for
+            imglTree.Images.Add("block-red", Properties.Resources.tree_block_red); //Data block that has been marked for deletion
+            imglTree.Images.Add("block-purple", Properties.Resources.tree_block_purple); //Most significant data block(s), ie. image data
             imglTree.Images.Add("block-trueblue", Properties.Resources.tree_block_trueblue);
             imglTree.Images.Add("int", Properties.Resources.tree_int);
             imglTree.Images.Add("byte", Properties.Resources.tree_byte);

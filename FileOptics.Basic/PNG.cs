@@ -149,18 +149,18 @@ namespace FileOptics.Basic
                 sb.Append(String.Format("This chunk has a CRC32 of {0:X2}{1:X2}{2:X2}{3:X2}", buffer[0], buffer[1], buffer[2], buffer[3]));
 
                 Bridge.AppendNode(
-                    new InfoNode(name, "block",
+                    new InfoNode(name, (name == "IDAT" ? "block-purple" : "block"),
                         InfoType.Generic,
                         new GenericInfo(name + " Chunk", sb.ToString()),
                         dtype,
-                        start, end) { SelectedImageKey = "block-trueblue" },
+                        start, end),
                     root);
             } while (name != "IEND");
 
             if (stream.Position < stream.Length)
             {
                 Bridge.AppendNode(
-                    new InfoNode("EOF",
+                    new InfoNode("EOF", "block-orange",
                         InfoType.Generic,
                         new GenericInfo("EOF", "End Of File data; serves no function or purpose to the PNG image."),
                         DataType.Useless,

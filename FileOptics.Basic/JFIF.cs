@@ -151,7 +151,7 @@ namespace FileOptics.Basic
             if (pos < stream.Length)
             {
                 Bridge.AppendNode(
-                    new InfoNode("EOF",
+                    new InfoNode("EOF", "block-orange",
                         InfoType.Generic,
                         new GenericInfo("EOF", "End Of File data; serves no function or purpose."),
                         DataType.Useless,
@@ -159,7 +159,48 @@ namespace FileOptics.Basic
                     root);
             }
 
+            foreach (InfoNode n in root.Nodes)
+            {
+                if (n.DataStart + 1 == n.DataEnd) continue;
+                Bridge.AppendNode(new InfoNode("Marker ID", "binary", InfoType.None, null, DataType.Critical, n.DataStart, n.DataStart + 1), n);
+                Bridge.AppendNode(new InfoNode("Data length", "int", InfoType.None, null, DataType.Critical, n.DataStart + 2, n.DataStart + 3), n);
+                if (n.DataStart + 3 == n.DataEnd) continue;
+
+                int datalength = (int)((n.DataEnd + 1) - (n.DataStart + 4));
+                long datastart = n.DataStart + 4;
+
+                byte[] datab;
+
+                if (n.Text == "APP1")
+                {
+                    datab = ReadData(stream, n.DataStart + 4, datalength);
+
+                    int nullpos = 0;
+                    for (; nullpos < datab.Length; nullpos++)
+                        if (datab[nullpos] == 0x00) break;
+
+                    if (nullpos < datab.Length - 1)
+                    {
+                        string appname = Encoding.ASCII.GetString(datab, 0, nullpos);
+                        Bridge.AppendNode(new InfoNode("Application name", "str", InfoType.Generic, new GenericInfo("Application Name", appname), DataType.Critical, datastart, datastart + nullpos), n);
+
+                        continue;
+                    }
+                }
+
+                Bridge.AppendNode(new InfoNode("Unknown data", "binary", InfoType.None, null, DataType.Critical, n.DataStart + 4, n.DataEnd), n);
+            }
+
             return true;
+        }
+
+        byte[] ReadData(Stream stream, long position, int len)
+        {
+            byte[] datab = new byte[len];
+            stream.Seek(position, SeekOrigin.Begin);
+            if (stream.Read(datab, 0, len) != len) throw new Exception("Marker data could not be read");
+            
+            return datab;
         }
 
         public void Write(RootInfoNode root, Stream sout)
