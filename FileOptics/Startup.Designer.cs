@@ -33,11 +33,10 @@
             // 
             // lbl
             // 
-            this.lbl.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lbl.AutoSize = true;
+            this.lbl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.lbl.Location = new System.Drawing.Point(12, 19);
             this.lbl.Name = "lbl";
-            this.lbl.Size = new System.Drawing.Size(33, 13);
+            this.lbl.Size = new System.Drawing.Size(341, 13);
             this.lbl.TabIndex = 0;
             this.lbl.Text = "Idle...";
             // 
@@ -58,7 +57,6 @@
             this.Text = "Startup";
             this.Load += new System.EventHandler(this.Startup_Load);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 

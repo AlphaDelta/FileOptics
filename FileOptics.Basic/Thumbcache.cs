@@ -22,7 +22,8 @@ namespace FileOptics.Basic
             return
                 //ver == 0x14 || //Vista
                 ver == 0x15 || //Windows 7
-                ver == 0x1F;   //Windows 8.1
+                ver == 0x1F || //Windows 8.1
+                ver == 0x20;   //Windows 10
         }
 
         public bool CompareBytes(byte[] bt1, byte[] bt2)
@@ -38,12 +39,13 @@ namespace FileOptics.Basic
 
         public bool Read(RootInfoNode root, Stream stream)
         {
+            InfoNode header = null;
             Bridge.AppendNode(
-                new InfoNode("CMMM Header",
+                (header = new InfoNode("CMMM Header", "info",
                     InfoType.Generic,
                     new GenericInfo("CMMM Header", "Contains information about the file type version and cache type."),
                     DataType.Critical,
-                    0x00, 0x17),
+                    0x00, 0x17)),
                 root);
 
             stream.Seek(0x04, SeekOrigin.Begin);
@@ -56,6 +58,15 @@ namespace FileOptics.Basic
             int ctype = BitConverter.ToInt32(buffer, 0);
 
             stream.Seek(0x0C, SeekOrigin.Current); //Skip three 32bit integers
+
+            Bridge.AppendNode(new InfoNode("Magic number", "str", InfoType.Generic, new GenericInfo("Magic Number", "Contains only the string 'CMMM'."), DataType.Critical, 0x00, 0x03), header);
+            const char VSC = '*';
+            Bridge.AppendNode(new InfoNode("Version", "int", InfoType.Generic, new GenericInfo("Version", String.Format("Identifies the file format version.\r\n\r\n{0} 0x15 = Windows 7\r\n{1} 0x1F = Windows 8.1\r\n{2} 0x20 = Windows 10", (version == 0x15 ? VSC : ' '), (version == 0x1F ? VSC : ' '), (version == 0x20 ? VSC : ' '))), DataType.Critical, 0x04, 0x07), header);
+
+            Bridge.AppendNode(new InfoNode("Cache type", "int", InfoType.None, null, DataType.Critical, 0x08, 0x0B), header);
+            Bridge.AppendNode(new InfoNode("Unknown int 1", "unknown", InfoType.Generic, new GenericInfo("Unknown 32-bit Integer 1", "There's a lot of speculation over this integer being the header size or being a pointer to the first entry (available or not), I've never seen it anything other than zero"), DataType.Critical, 0x0C, 0x0F), header);
+            Bridge.AppendNode(new InfoNode("First available entry", "intptr", InfoType.None, null, DataType.Critical, 0x10, 0x13), header);
+            Bridge.AppendNode(new InfoNode("Unknown int 2", "unknown", InfoType.None, null, DataType.Critical, 0x14, 0x17), header);
 
             int entrylen, stringlen, paddinglen, datalen, seek, databegin, dataend, entrybegin;
             byte[] cbuffer = new byte[0x0C];
@@ -85,7 +96,7 @@ namespace FileOptics.Basic
                 datalen = BitConverter.ToInt32(cbuffer, 0x08);
 
                 tempseek = stream.Position;
-                seek = (version == 0x1F ? 0x0C : 0x04) + 0x10;
+                seek = (version >= 0x1F ? 0x0C : 0x04) + 0x10;
                 if (stream.Seek(seek, SeekOrigin.Current) != tempseek + seek) //Skip unknown integers and two CRC64 checksums
                     throw new Exception("Data ended earlier than expected.");
 
@@ -109,7 +120,7 @@ namespace FileOptics.Basic
 
                 if (datalen > 0)
                     Bridge.AppendNode(
-                        new InfoNode(uniqueid,
+                        new InfoNode(uniqueid, "block",
                             InfoType.Delegate,
                             new object[] {
                                 (Action<object[]>) delegate(object[] data) {
@@ -133,7 +144,7 @@ namespace FileOptics.Basic
                         root);
                 else
                     Bridge.AppendNode(
-                        new InfoNode(uniqueid,
+                        new InfoNode(uniqueid, "block-orange",
                             InfoType.None,
                             null,
                             DataType.Ancillary,
@@ -144,7 +155,7 @@ namespace FileOptics.Basic
             if (stream.Position < stream.Length)
             {
                 Bridge.AppendNode(
-                    new InfoNode("EOF",
+                    new InfoNode("EOF", "block-orange",
                         InfoType.Generic,
                         new GenericInfo("EOF", "End Of File data; serves no function or purpose."),
                         DataType.Useless,

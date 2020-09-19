@@ -161,7 +161,7 @@ namespace FileOptics.Basic
 
             foreach (InfoNode n in root.Nodes)
             {
-                if (n.DataStart + 1 == n.DataEnd) continue;
+                if (n.DataStart + 1 == n.DataEnd || n.ImageKey != "block") continue;
                 Bridge.AppendNode(new InfoNode("Marker ID", "binary", InfoType.None, null, DataType.Critical, n.DataStart, n.DataStart + 1), n);
                 Bridge.AppendNode(new InfoNode("Data length", "int", InfoType.None, null, DataType.Critical, n.DataStart + 2, n.DataStart + 3), n);
                 if (n.DataStart + 3 == n.DataEnd) continue;
@@ -171,7 +171,7 @@ namespace FileOptics.Basic
 
                 byte[] datab;
 
-                if (n.Text == "APP1")
+                if (n.Text.StartsWith("APP"))
                 {
                     datab = ReadData(stream, n.DataStart + 4, datalength);
 
@@ -184,11 +184,56 @@ namespace FileOptics.Basic
                         string appname = Encoding.ASCII.GetString(datab, 0, nullpos);
                         Bridge.AppendNode(new InfoNode("Application name", "str", InfoType.Generic, new GenericInfo("Application Name", appname), DataType.Critical, datastart, datastart + nullpos), n);
 
+                        int dbegin = (int)(datastart + nullpos + 1);
+                        int pointer = nullpos + 1;
+                        if (appname == "Exif" && datalength >= 14)
+                        {
+                            if (datab[pointer++] != 0x00)
+                            {
+                                Bridge.AppendNode(new InfoNode("Error", "error", InfoType.Generic, new GenericInfo("Error", "Incorrect EXIF identifier."), DataType.Error, dbegin, n.DataEnd), n);
+                                continue;
+                            }
+
+                            char EndianA = (char)datab[pointer++];
+                            char EndianB = (char)datab[pointer++];
+
+                            if (EndianA != EndianB || (EndianA != 'I' && EndianA != 'M'))
+                            {
+                                Bridge.AppendNode(new InfoNode("Error", "error", InfoType.Generic, new GenericInfo("Error", "Could not parse byte order."), DataType.Error, dbegin, n.DataEnd), n);
+                                continue;
+                            }
+
+                            bool bigendian = EndianA == 'M';
+
+                            int the_answer_to_life_the_universe_and_everything = (bigendian ? datab[pointer++] << 0x08 | datab[pointer++] : datab[pointer++] | datab[pointer++] << 0x08);
+
+                            if (the_answer_to_life_the_universe_and_everything != 42) //Should be impossible...
+                            {
+                                Bridge.AppendNode(new InfoNode("Error", "error", InfoType.Generic, new GenericInfo("Error", "Incorrect TIFF magic number (should be 42)."), DataType.Error, dbegin, n.DataEnd), n);
+                                continue;
+                            }
+
+                            int zoffset = (bigendian ?
+                                datab[pointer++] << 0x18 | datab[pointer++] << 0x10 | datab[pointer++] << 0x08 | datab[pointer++] :
+                                datab[pointer++] | datab[pointer++] << 0x08 | datab[pointer++] << 0x10 | datab[pointer++] << 0x18);
+
+                            InfoNode tiff = new InfoNode("TIFF header", "info", InfoType.None, null, DataType.Critical, dbegin + 1, dbegin + 8);
+                            Bridge.AppendNode(tiff, n);
+
+                            Bridge.AppendNode(new InfoNode("Byte order", "str", InfoType.None, null, DataType.Critical, dbegin + 1, dbegin + 2), tiff);
+                            Bridge.AppendNode(new InfoNode("TIFF magic number", "int", InfoType.None, null, DataType.Critical, dbegin + 3, dbegin + 4), tiff);
+                            Bridge.AppendNode(new InfoNode("Offset to 0th IFD", "int", InfoType.None, null, DataType.Critical, dbegin + 5, dbegin + 8), tiff);
+                        }
+                        else
+                        {
+                            Bridge.AppendNode(new InfoNode("Application data", "binary", InfoType.None, null, DataType.Critical, dbegin, n.DataEnd), n);
+                        }
+
                         continue;
                     }
                 }
 
-                Bridge.AppendNode(new InfoNode("Unknown data", "binary", InfoType.None, null, DataType.Critical, n.DataStart + 4, n.DataEnd), n);
+                Bridge.AppendNode(new InfoNode("Marker data", "binary", InfoType.None, null, DataType.Critical, n.DataStart + 4, n.DataEnd), n);
             }
 
             return true;

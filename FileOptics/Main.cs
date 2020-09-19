@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -29,6 +28,7 @@ namespace FileOptics
             imglTree.Images.Add("block-purple", Properties.Resources.tree_block_purple); //Most significant data block(s), ie. image data
             imglTree.Images.Add("block-trueblue", Properties.Resources.tree_block_trueblue);
             imglTree.Images.Add("int", Properties.Resources.tree_int);
+            imglTree.Images.Add("intptr", Properties.Resources.tree_intptr);
             imglTree.Images.Add("byte", Properties.Resources.tree_byte);
             imglTree.Images.Add("str", Properties.Resources.tree_str);
             imglTree.Images.Add("unknown", Properties.Resources.tree_unknown);
