@@ -1,7 +1,10 @@
 ﻿using FileOptics.Interface;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace FileOptics.TESV
@@ -212,8 +215,41 @@ namespace FileOptics.TESV
                     pos, stream.Position - 1),
                 nHeader);
 
-            /* End */
+            /* Header end */
             nHeader.DataEnd = stream.Position - 1;
+
+            /* Screenshot */
+            pos = stream.Position;
+            byte[] shotbuffer = new byte[4 * shotwidth * shotheight];
+            if (stream.Read(shotbuffer, 0, shotbuffer.Length) != shotbuffer.Length)
+                throw new Exception("Screenshot data ended earlier than expected.");
+            for (int i = 0; i < shotbuffer.Length; i += 4)
+            {
+                ib[0] = shotbuffer[i];
+                ib[1] = shotbuffer[i + 1];
+                ib[2] = shotbuffer[i + 2];
+
+                shotbuffer[i] = ib[2];
+                shotbuffer[i + 1] = ib[1];
+                shotbuffer[i + 2] = ib[0];
+            }
+
+            Bitmap bmp = new Bitmap((int)shotwidth, (int)shotheight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            BitmapData bdata = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, bmp.PixelFormat);
+
+            IntPtr pNative = bdata.Scan0;
+            Marshal.Copy(shotbuffer, 0, pNative, shotbuffer.Length);
+
+            bmp.UnlockBits(bdata);
+
+            Bridge.AppendNode(
+                new InfoNode("Screenshot data", "binary",
+                    InfoType.Image,
+                    bmp,
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                root);
 
             return true;
         }

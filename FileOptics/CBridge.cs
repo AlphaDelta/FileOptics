@@ -61,6 +61,11 @@ namespace FileOptics
                     if (imgstream != null)
                         imgstream.Dispose();
                     break;
+                case InfoType.Image:
+                    main.imgInfo.Image = ((Image)info);
+                    if (imgstream != null)
+                        imgstream.Dispose();
+                    break;
                 //case InfoType.None:
                 //    return;
                 case InfoType.Delegate:
@@ -70,7 +75,7 @@ namespace FileOptics
                     }
                     else if (info.GetType() == typeof(object[]))
                     {
-                        ((Action<object[]>)((object[])info)[0])(((object[])((object[])info)[1]));
+                        ((Action<object[]>)((object[])info)[0])(((object[])((object[])info)[1])); //I don't know what the fuck I was thinking when I made this
                     }
                     return;
                 case InfoType.Panel:
