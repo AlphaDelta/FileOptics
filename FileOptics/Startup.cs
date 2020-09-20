@@ -56,6 +56,7 @@ namespace FileOptics
                     this.Invoke((Action)delegate { lbl.Text = String.Format("Reading '{0}'.", Path.GetFileName(file)); });
                     if (!File.Exists(file)) continue;
 
+#if !DEBUG
                     NayukiSHA256 sha256 = new NayukiSHA256();
                     sha256.AppendFile(file, true);
 
@@ -80,6 +81,7 @@ namespace FileOptics
                         using (FileStream trusted = File.Open("modules\\trusted", FileMode.Append, FileAccess.Write, FileShare.Read))
                             trusted.Write(sha256.Hash, 0, sha256.Hash.Length);
                     }
+#endif
 
                     Assembly asm = Assembly.LoadFrom(file);
                     foreach (Type t in asm.GetTypes())

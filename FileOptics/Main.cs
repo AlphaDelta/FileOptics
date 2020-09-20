@@ -33,7 +33,7 @@ namespace FileOptics
             imglTree.Images.Add("str", Properties.Resources.tree_str);
             imglTree.Images.Add("unknown", Properties.Resources.tree_unknown);
 
-            imgInfo.Resize += delegate(object sender, EventArgs e)
+            imgInfo.Resize += delegate (object sender, EventArgs e)
             {
                 if (imgInfo.Image == null) return;
 
@@ -73,9 +73,9 @@ namespace FileOptics
             };
 
             this.AllowDrop = true;
-            this.DragOver += delegate(object sender, DragEventArgs e)
+            this.DragOver += delegate (object sender, DragEventArgs e)
             { e.Effect = (e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.All : DragDropEffects.None); };
-            this.DragDrop += delegate(object sender, DragEventArgs e)
+            this.DragDrop += delegate (object sender, DragEventArgs e)
             {
                 if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
 
@@ -83,7 +83,6 @@ namespace FileOptics
 
                 BackgroundWorker bg = new BackgroundWorker();
 
-                //this.BeginInvoke((Action)delegate
                 bg.DoWork += delegate
                 {
                     if (files.Length != 1)
@@ -92,97 +91,96 @@ namespace FileOptics
                         return;
                     }
 
-                    List<int> valid = new List<int>();
-                    byte[] magicbuffer = new byte[0x10];
-                    int read = 0;
-                    
-                    FileStream fs = null;
-                    string fname = Path.GetFileName(files[0]);
-                    try
-                    {
-                        fs = File.Open(files[0], FileMode.Open, FileAccess.Read, FileShare.Read);
-                    }
-                    catch (IOException ex)
-                    {
-                        if (!ex.Message.Contains("used by another process"))
-                        {
-                            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-
-                        if (MessageBox.Show("The file could not be write-locked, would you like to make a temporary copy and read that instead?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != System.Windows.Forms.DialogResult.Yes)
-                            return;
-
-                        byte[] hash = NayukiSHA256.Calculate(Encoding.ASCII.GetBytes(files[0]));
-                        StringBuilder sb = new StringBuilder(hash.Length * 2);
-                        foreach (byte b in hash)
-                            sb.Append(b.ToString("X2"));
-
-                        string newf = Root.LocalAppData + sb.ToString() + ".temp";
-                        File.Copy(files[0], newf);
-                        files[0] = newf;
-
-                        fs = File.Open(files[0], FileMode.Open, FileAccess.Read, FileShare.Read);
-                    }
-
-                    //using (FileStream fs = File.Open(files[0], FileMode.Open, FileAccess.Read, FileShare.Read))
-                    try
-                    {
-                        if (fs.Length < 1) return;
-                        if ((read = fs.Read(magicbuffer, 0, magicbuffer.Length)) < 1) return;
-
-                        for (int i = 0; i < Root.ModuleAttribs.Count; i++)
-                        {
-                            if (fs.Length < Root.ModuleAttribs[i].MinFileSize)
-                                continue;
-
-                            if (Root.ModuleAttribs[i].Magic != null && Root.ModuleAttribs[i].Magic.Length > 0 && Root.ModuleAttribs[i].Magic.Length <= magicbuffer.Length)
-                            {
-                                int j = 0;
-                                for (; j < Root.ModuleAttribs[i].Magic.Length; j++)
-                                    if (Root.ModuleAttribs[i].Magic[j] != magicbuffer[j])
-                                        break;
-
-                                if (j < Root.ModuleAttribs[i].Magic.Length) continue;
-                            }
-
-                            fs.Seek(0, SeekOrigin.Begin);
-                            if (Root.Modules[i].CanRead(fs))
-                                valid.Add(i);
-                        }
-
-                        //StringBuilder sb = new StringBuilder();
-                        //foreach (int i in valid)
-                        //    sb.AppendLine(Root.ModuleAttribs[i].Name);
-                        //MessageBox.Show(sb.ToString(), "Valid Modules", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                        this.Invoke((Action)delegate
-                        {
-                            if (valid.Count < 1)
-                                MessageBox.Show("No modules that were able to read the specified file could be found.", "Unsupported Format", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            else if (valid.Count > 1)
-                                MessageBox.Show("More than one applicable module.", "NYI", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            else
-                            {
-                                fs.Seek(0, SeekOrigin.Begin);
-                                RootInfoNode root = new RootInfoNode(fname, files[0], Root.Modules[valid[0]]) { ImageKey = "file", SelectedImageKey = "file" };
-                                Root.Modules[valid[0]].Read(root, fs);
-                                Bridge.AddRootNode(root);
-                            }
-                        });
-                    }
-                    finally
-                    {
-                        if (fs != null)
-                        {
-                            fs.Close();
-                            fs.Dispose();
-                        }
-                    }
+                    LoadFile(files[0]);
                 };
-                //});
+
                 bg.RunWorkerAsync();
             };
+        }
+
+        private void LoadFile(string file)
+        {
+            List<int> valid = new List<int>();
+            byte[] magicbuffer = new byte[0x10];
+            int read = 0;
+
+            FileStream fs = null;
+            string fname = Path.GetFileName(file);
+            try
+            {
+                try
+                {
+                    fs = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+                }
+                catch (IOException ex)
+                {
+                    if (!ex.Message.Contains("used by another process"))
+                    {
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    if (MessageBox.Show("The file could not be write-locked, would you like to make a temporary copy and read that instead?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != System.Windows.Forms.DialogResult.Yes)
+                        return;
+
+                    byte[] hash = NayukiSHA256.Calculate(Encoding.ASCII.GetBytes(file));
+                    StringBuilder sb = new StringBuilder(hash.Length * 2);
+                    foreach (byte b in hash)
+                        sb.Append(b.ToString("X2"));
+
+                    string newf = Root.LocalAppData + sb.ToString() + ".temp";
+                    File.Copy(file, newf);
+                    file = newf;
+
+                    fs = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+                }
+
+                if (fs.Length < 1) return;
+                if ((read = fs.Read(magicbuffer, 0, magicbuffer.Length)) < 1) return;
+
+                for (int i = 0; i < Root.ModuleAttribs.Count; i++)
+                {
+                    if (fs.Length < Root.ModuleAttribs[i].MinFileSize)
+                        continue;
+
+                    if (Root.ModuleAttribs[i].Magic != null && Root.ModuleAttribs[i].Magic.Length > 0 && Root.ModuleAttribs[i].Magic.Length <= magicbuffer.Length)
+                    {
+                        int j = 0;
+                        for (; j < Root.ModuleAttribs[i].Magic.Length; j++)
+                            if (Root.ModuleAttribs[i].Magic[j] != magicbuffer[j])
+                                break;
+
+                        if (j < Root.ModuleAttribs[i].Magic.Length) continue;
+                    }
+
+                    fs.Seek(0, SeekOrigin.Begin);
+                    if (Root.Modules[i].CanRead(fs))
+                        valid.Add(i);
+                }
+
+                this.Invoke((Action)delegate
+                {
+                    if (valid.Count < 1)
+                        MessageBox.Show("No modules that were able to read the specified file could be found.", "Unsupported Format", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else if (valid.Count > 1)
+                        MessageBox.Show("More than one applicable module.", "NYI", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else
+                    {
+                        fs.Seek(0, SeekOrigin.Begin);
+                        RootInfoNode root = new RootInfoNode(fname, file, Root.Modules[valid[0]]) { ImageKey = "file", SelectedImageKey = "file" };
+                        Root.Modules[valid[0]].Read(root, fs);
+                        Bridge.AddRootNode(root);
+                    }
+                });
+            }
+            finally
+            {
+                if (fs != null)
+                {
+                    fs.Close();
+                    fs.Dispose();
+                }
+            }
         }
 
         string fileloaded = null;
@@ -213,7 +211,7 @@ namespace FileOptics
                     h %= 1;
                     //} while (h > 0.15 && h < 0.525); 
                 }
-                
+
                 //hexBox1.ScrollTo(0);
                 hexBox1.Invalidate();
 
@@ -263,6 +261,11 @@ namespace FileOptics
 
                 Bridge.ShowInfo(inode.IType, inode.Info);
             }
+        }
+
+        private void menuFile_Click(object sender, EventArgs e)
+        {
+            LoadFile(@"./testfile");
         }
     }
 }

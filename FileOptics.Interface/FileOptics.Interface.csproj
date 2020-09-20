@@ -41,6 +41,7 @@
     <Compile Include="Bridge.cs" />
     <Compile Include="DataInterpreter.cs" />
     <Compile Include="DataType.cs" />
+    <Compile Include="FloatConverter.cs" />
     <Compile Include="IBridge.cs" />
     <Compile Include="IModule.cs" />
     <Compile Include="InfoNode.cs" />

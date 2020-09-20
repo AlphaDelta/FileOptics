@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30406.217
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileOptics", "FileOptics\FileOptics.csproj", "{6A3DC500-DE57-4032-94F3-C7FDFA35FC08}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileOptics.Interface", "FileOptics.Interface\FileOptics.Interface.csproj", "{55E1FEC1-8E15-4DD8-A9D1-7804A998750C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileOptics.Basic", "FileOptics.Basic\FileOptics.Basic.csproj", "{3AC2326A-3598-4EDD-A0C3-E2188E9D158C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileOptics.TESV", "FileOptics.TESV\FileOptics.TESV.csproj", "{DDC22123-9928-4F0F-92E5-CA88F2BA483E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,8 +29,15 @@ Global
 		{3AC2326A-3598-4EDD-A0C3-E2188E9D158C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3AC2326A-3598-4EDD-A0C3-E2188E9D158C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3AC2326A-3598-4EDD-A0C3-E2188E9D158C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDC22123-9928-4F0F-92E5-CA88F2BA483E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDC22123-9928-4F0F-92E5-CA88F2BA483E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDC22123-9928-4F0F-92E5-CA88F2BA483E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDC22123-9928-4F0F-92E5-CA88F2BA483E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7FA9E658-7658-43E5-A4CB-D81680E06837}
 	EndGlobalSection
 EndGlobal

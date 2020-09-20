@@ -33,6 +33,8 @@
             this.tree = new System.Windows.Forms.TreeView();
             this.imglTree = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.pInfoBinary = new System.Windows.Forms.Panel();
+            this.hbInfo = new HexBoxLib.HexBox();
             this.pInfoTable = new System.Windows.Forms.Panel();
             this.lvInfoTable = new System.Windows.Forms.ListView();
             this.pInfoImage = new System.Windows.Forms.Panel();
@@ -40,23 +42,21 @@
             this.pInfoGeneric = new System.Windows.Forms.Panel();
             this.txtInfoGenericBody = new System.Windows.Forms.TextBox();
             this.lblInfoGenericTitle = new System.Windows.Forms.Label();
+            this.hexBox1 = new HexBoxLib.HexBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.hexBox1 = new HexBoxLib.HexBox();
-            this.pInfoBinary = new System.Windows.Forms.Panel();
-            this.hbInfo = new HexBoxLib.HexBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            this.pInfoBinary.SuspendLayout();
             this.pInfoTable.SuspendLayout();
             this.pInfoImage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).BeginInit();
             this.pInfoGeneric.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.pInfoBinary.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -130,6 +130,28 @@
             this.splitContainer2.TabIndex = 0;
             this.splitContainer2.TabStop = false;
             // 
+            // pInfoBinary
+            // 
+            this.pInfoBinary.Controls.Add(this.hbInfo);
+            this.pInfoBinary.Location = new System.Drawing.Point(214, 347);
+            this.pInfoBinary.Name = "pInfoBinary";
+            this.pInfoBinary.Size = new System.Drawing.Size(64, 64);
+            this.pInfoBinary.TabIndex = 2;
+            // 
+            // hbInfo
+            // 
+            this.hbInfo.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hbInfo.BackColor = System.Drawing.Color.White;
+            this.hbInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hbInfo.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hbInfo.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hbInfo.Location = new System.Drawing.Point(0, 0);
+            this.hbInfo.Name = "hbInfo";
+            this.hbInfo.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hbInfo.Size = new System.Drawing.Size(64, 64);
+            this.hbInfo.TabIndex = 0;
+            this.hbInfo.Text = "hexBox2";
+            // 
             // pInfoTable
             // 
             this.pInfoTable.Controls.Add(this.lvInfoTable);
@@ -143,6 +165,7 @@
             this.lvInfoTable.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvInfoTable.FullRowSelect = true;
             this.lvInfoTable.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.lvInfoTable.HideSelection = false;
             this.lvInfoTable.Location = new System.Drawing.Point(0, 0);
             this.lvInfoTable.Name = "lvInfoTable";
             this.lvInfoTable.Size = new System.Drawing.Size(64, 64);
@@ -203,6 +226,20 @@
             this.lblInfoGenericTitle.TabIndex = 0;
             this.lblInfoGenericTitle.Text = "Title";
             // 
+            // hexBox1
+            // 
+            this.hexBox1.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hexBox1.BackColor = System.Drawing.Color.White;
+            this.hexBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hexBox1.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hexBox1.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hexBox1.Location = new System.Drawing.Point(0, 0);
+            this.hexBox1.Name = "hexBox1";
+            this.hexBox1.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hexBox1.Size = new System.Drawing.Size(646, 414);
+            this.hexBox1.TabIndex = 0;
+            this.hexBox1.Text = "hexBox1";
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -218,42 +255,7 @@
             this.menuFile.Name = "menuFile";
             this.menuFile.Size = new System.Drawing.Size(37, 20);
             this.menuFile.Text = "File";
-            // 
-            // hexBox1
-            // 
-            this.hexBox1.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hexBox1.BackColor = System.Drawing.Color.White;
-            this.hexBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hexBox1.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hexBox1.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hexBox1.Location = new System.Drawing.Point(0, 0);
-            this.hexBox1.Name = "hexBox1";
-            this.hexBox1.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hexBox1.Size = new System.Drawing.Size(646, 414);
-            this.hexBox1.TabIndex = 0;
-            this.hexBox1.Text = "hexBox1";
-            // 
-            // pInfoBinary
-            // 
-            this.pInfoBinary.Controls.Add(this.hbInfo);
-            this.pInfoBinary.Location = new System.Drawing.Point(214, 347);
-            this.pInfoBinary.Name = "pInfoBinary";
-            this.pInfoBinary.Size = new System.Drawing.Size(64, 64);
-            this.pInfoBinary.TabIndex = 2;
-            // 
-            // hbInfo
-            // 
-            this.hbInfo.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hbInfo.BackColor = System.Drawing.Color.White;
-            this.hbInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hbInfo.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hbInfo.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hbInfo.Location = new System.Drawing.Point(0, 0);
-            this.hbInfo.Name = "hbInfo";
-            this.hbInfo.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hbInfo.Size = new System.Drawing.Size(64, 64);
-            this.hbInfo.TabIndex = 0;
-            this.hbInfo.Text = "hexBox2";
+            this.menuFile.Click += new System.EventHandler(this.menuFile_Click);
             // 
             // Main
             // 
@@ -273,6 +275,7 @@
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             this.splitContainer2.ResumeLayout(false);
+            this.pInfoBinary.ResumeLayout(false);
             this.pInfoTable.ResumeLayout(false);
             this.pInfoImage.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).EndInit();
@@ -280,7 +283,6 @@
             this.pInfoGeneric.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.pInfoBinary.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
