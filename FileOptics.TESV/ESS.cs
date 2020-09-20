@@ -38,6 +38,7 @@ namespace FileOptics.TESV
 
             stream.Seek(0x0D, SeekOrigin.Begin);
 
+            #region Header
             /* Header size : uint32 */
             byte[] ib = new byte[8];
             uint hsize = ReadUInt32(stream, ref ib);
@@ -217,6 +218,7 @@ namespace FileOptics.TESV
 
             /* Header end */
             nHeader.DataEnd = stream.Position - 1;
+#endregion Header
 
             /* Screenshot */
             pos = stream.Position;
@@ -247,6 +249,17 @@ namespace FileOptics.TESV
                 new InfoNode("Screenshot data", "binary",
                     InfoType.Image,
                     bmp,
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                root);
+
+            /* Form version : uint8 */
+            pos = stream.Position;
+            uint formversion = ReadUInt8(stream, ref ib);
+            Bridge.AppendNode(
+                new InfoNode("Form version", "int",
+                    InfoType.Generic,
+                    new GenericInfo("Form version", formversion.ToString()),
                     DataType.Critical,
                     pos, stream.Position - 1),
                 root);
@@ -295,6 +308,14 @@ namespace FileOptics.TESV
                 throw new Exception("Data ended earlier than expected.");
 
             return (uint)buffer[1] << 0x08 | (uint)buffer[0];
+        }
+
+        uint ReadUInt8(Stream stream, ref byte[] buffer)
+        {
+            if (stream.Read(buffer, 0, 1) != 1)
+                throw new Exception("Data ended earlier than expected.");
+
+            return (uint)buffer[0];
         }
 
         public void Write(RootInfoNode root, Stream sout)
