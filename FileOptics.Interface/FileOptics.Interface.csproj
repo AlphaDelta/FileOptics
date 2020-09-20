@@ -51,6 +51,7 @@
     <Compile Include="RootInfoNode.cs" />
     <Compile Include="GenericInfo.cs" />
     <Compile Include="SequentialReadCachedStream.cs" />
+    <Compile Include="SubStream.cs" />
     <Compile Include="TableInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

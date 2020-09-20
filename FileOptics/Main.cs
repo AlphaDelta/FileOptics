@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FileOptics
@@ -81,20 +82,16 @@ namespace FileOptics
 
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
 
-                BackgroundWorker bg = new BackgroundWorker();
-
-                bg.DoWork += delegate
+                if (files.Length != 1)
                 {
-                    if (files.Length != 1)
-                    {
-                        MessageBox.Show("Please only drop one file at a time!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                    MessageBox.Show("Please only drop one file at a time!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
+                Task.Run(() =>
+                {
                     LoadFile(files[0]);
-                };
-
-                bg.RunWorkerAsync();
+                });
             };
         }
 

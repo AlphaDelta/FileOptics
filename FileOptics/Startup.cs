@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FileOptics
@@ -20,9 +21,7 @@ namespace FileOptics
 
         private void Startup_Load(object sender, EventArgs e)
         {
-            BackgroundWorker bg = new BackgroundWorker();
-
-            bg.DoWork += delegate
+            Task.Run(() =>
             {
                 this.Invoke((Action)delegate { lbl.Text = "Checking for necessary files and folders."; });
                 if (!Directory.Exists("modules")) Directory.CreateDirectory("modules");
@@ -96,8 +95,7 @@ namespace FileOptics
                     }
                 }
                 this.Invoke((Action)delegate { lbl.Text = "Complete!"; Canceled = false; this.Close(); });
-            };
-            bg.RunWorkerAsync();
+            });
         }
     }
 }
