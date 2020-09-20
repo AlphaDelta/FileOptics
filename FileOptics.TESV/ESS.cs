@@ -62,7 +62,8 @@ namespace FileOptics.TESV
                     pos, stream.Position - 1),
                 nHeader);
 
-            if (version != 12) throw new Exception("Expected Special Edition save file.");
+            bool isSSE = version >= 12;
+            //if (version != 12) throw new Exception("Expected Special Edition save file.");
 
             /* Save number : uint32 */
             pos = stream.Position;
@@ -219,7 +220,7 @@ namespace FileOptics.TESV
 
             /* Header end */
             nHeader.DataEnd = stream.Position - 1;
-#endregion Header
+            #endregion
 
             /* Screenshot */
             pos = stream.Position;
@@ -322,6 +323,99 @@ namespace FileOptics.TESV
                     DataType.Critical,
                     pos, stream.Position - 1),
                 parent);
+
+            #region Plugin info
+            /* Plugin info */
+            pos = stream.Position;
+            InfoNode nPluginInfo = new InfoNode("Plugin info", "block",
+                    InfoType.None,
+                    null,
+                    DataType.Critical,
+                    pos, 0);
+            Bridge.AppendNode(nPluginInfo, parent);
+
+            /* Plugin info size : uint32 */
+            pos = stream.Position;
+            uint plugininfosize = ReadUInt32(stream, ref ib);
+            Bridge.AppendNode(new InfoNode("Plugin info size", "int",
+                    InfoType.Generic,
+                    new GenericInfo("Plugin info size", plugininfosize.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                nPluginInfo);
+
+            /* Plugin count : uint8 */
+            pos = stream.Position;
+            uint plugincount = ReadUInt8(stream, ref ib);
+            Bridge.AppendNode(
+                new InfoNode("Plugin count", "int",
+                    InfoType.Generic,
+                    new GenericInfo("Plugin count", plugincount.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                nPluginInfo);
+
+            /* Plugins */
+            pos = stream.Position;
+            InfoNode nPlugins = new InfoNode("Plugins", "info",
+                    InfoType.None,
+                    null,
+                    DataType.Critical,
+                    pos, 0);
+            Bridge.AppendNode(nPlugins, nPluginInfo);
+
+            for (int i = 0; i < plugincount; i++)
+            {
+                pos = stream.Position;
+                string plugin = ReadWString(stream, ref ib);
+                Bridge.AppendNode(new InfoNode(plugin, "str", InfoType.None, null, DataType.Critical, pos, stream.Position - 1), nPlugins);
+            }
+
+            nPlugins.DataEnd = nPluginInfo.DataEnd = stream.Position - 1;
+            #endregion
+
+            #region Light plugin info
+            if (isSSE)
+            {
+                /* Plugin info */
+                pos = stream.Position;
+                InfoNode nLightPluginInfo = new InfoNode("Light Plugin info", "block",
+                        InfoType.None,
+                        null,
+                        DataType.Critical,
+                        pos, 0);
+                Bridge.AppendNode(nLightPluginInfo, parent);
+
+                /* Plugin count : uint16 */
+                pos = stream.Position;
+                uint lightplugincount = ReadUInt16(stream, ref ib);
+                Bridge.AppendNode(
+                    new InfoNode("Plugin count", "int",
+                        InfoType.Generic,
+                        new GenericInfo("Plugin count", lightplugincount.ToString()),
+                        DataType.Critical,
+                        pos, stream.Position - 1),
+                    nLightPluginInfo);
+
+                /* Plugins */
+                pos = stream.Position;
+                InfoNode nLightPlugins = new InfoNode("Plugins", "info",
+                        InfoType.None,
+                        null,
+                        DataType.Critical,
+                        pos, 0);
+                Bridge.AppendNode(nLightPlugins, nLightPluginInfo);
+
+                for (int i = 0; i < lightplugincount; i++)
+                {
+                    pos = stream.Position;
+                    string plugin = ReadWString(stream, ref ib);
+                    Bridge.AppendNode(new InfoNode(plugin, "str", InfoType.None, null, DataType.Critical, pos, stream.Position - 1), nPlugins);
+                }
+
+                nLightPlugins.DataEnd = nLightPluginInfo.DataEnd = stream.Position - 1;
+            }
+            #endregion
 
             return true;
         }
