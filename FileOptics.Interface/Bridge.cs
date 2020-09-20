@@ -16,6 +16,7 @@ namespace FileOptics.Interface
 
         public static void AddRootNode(RootInfoNode i) { _base.AddRootNode(i); }
 
+        public static void AppendNode(InfoNode i, TreeNode super) { _base.AppendNode(i, super); }
         public static void AppendNode(InfoNode i, InfoNode super) { _base.AppendNode(i, super); }
         public static void AppendNode(InfoNode i, RootInfoNode super) { _base.AppendNode(i, super); }
 

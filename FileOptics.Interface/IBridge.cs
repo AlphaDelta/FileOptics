@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Forms;
 
 namespace FileOptics.Interface
 {
@@ -8,6 +9,7 @@ namespace FileOptics.Interface
     {
         void AddRootNode(RootInfoNode i);
 
+        void AppendNode(InfoNode i, TreeNode super);
         void AppendNode(InfoNode i, InfoNode super);
         void AppendNode(InfoNode i, RootInfoNode super);
 

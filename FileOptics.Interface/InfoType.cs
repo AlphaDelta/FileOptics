@@ -8,6 +8,7 @@ namespace FileOptics.Interface
     {
         Generic, //GenericInfo
         Binary, //byte[]
+        BinaryMainFocus, //byte[], will take over main HexBox
         Text, //string
         Image, //Image
         ImageFile, //string

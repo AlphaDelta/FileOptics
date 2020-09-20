@@ -184,7 +184,7 @@ namespace FileOptics
         Random rnd = new Random();
         private void tree_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            hexBox1.Highlights.Clear();
+            hbMain.Highlights.Clear();
             if (e.Node.Level == 0)
             {
                 if (!(e.Node is RootInfoNode)) return;
@@ -192,7 +192,7 @@ namespace FileOptics
                 RootInfoNode rin = (RootInfoNode)e.Node;
                 if (!File.Exists(rin.FilePath)) throw new FileNotFoundException();
 
-                hexBox1.ReadFile(rin.FilePath);
+                hbMain.ReadFile(rin.FilePath);
                 fileloaded = rin.FilePath;
 
                 double h = rnd.NextDouble();
@@ -200,7 +200,7 @@ namespace FileOptics
                 foreach (InfoNode inode in e.Node.Nodes)
                 {
                     HSV.ToRGB(h * 360, 1.00d, 1d, out r, out g, out b);
-                    hexBox1.Highlights.Add(new HexBoxLib.Highlight((int)inode.DataStart, (int)inode.DataEnd, Color.FromArgb(r, g, b)));
+                    hbMain.Highlights.Add(new HexBoxLib.Highlight((int)inode.DataStart, (int)inode.DataEnd, Color.FromArgb(r, g, b)));
 
                     //do
                     //{
@@ -209,8 +209,7 @@ namespace FileOptics
                     //} while (h > 0.15 && h < 0.525); 
                 }
 
-                //hexBox1.ScrollTo(0);
-                hexBox1.Invalidate();
+                hbMain.Invalidate();
 
                 Bridge.ShowInfo(rin.IType, rin.Info);
             }
@@ -219,42 +218,43 @@ namespace FileOptics
                 if (!(e.Node is InfoNode)) return;
                 InfoNode inode = (InfoNode)e.Node;
 
-                TreeNode root = e.Node;
-                do
+                /* Get root node */
+                TreeNode root = this.tree.SelectedNode;
+                TreeNode uncomp = null;
+                while (root.Level > 0)
                 {
                     root = root.Parent;
-                } while (root.Level > 0);
-
-                if (!(root is RootInfoNode)) return;
-
-                RootInfoNode rin = (RootInfoNode)root;
-                if (fileloaded != rin.FilePath)
-                {
-                    if (!File.Exists(rin.FilePath)) throw new FileNotFoundException();
-
-                    hexBox1.ReadFile(rin.FilePath);
-                    fileloaded = rin.FilePath;
+                    if (uncomp == null && root is InfoNode && ((InfoNode)root).IType == InfoType.BinaryMainFocus) uncomp = root;
                 }
+
+                if (uncomp != null)
+                    this.hbMain.ReadBytes((byte[])((InfoNode)uncomp).Info);
+                else
+                    this.hbMain.ReadFile(((RootInfoNode)root).FilePath);
+                //TreeNode root = e.Node;
+                //do
+                //{
+                //    root = root.Parent;
+                //} while (root.Level > 0);
+
+                //if (!(root is RootInfoNode)) return;
+
+                //RootInfoNode rin = (RootInfoNode)root;
+                //if (fileloaded != rin.FilePath)
+                //{
+                //    if (!File.Exists(rin.FilePath)) throw new FileNotFoundException();
+
+                //    hbMain.ReadFile(rin.FilePath);
+                //    fileloaded = rin.FilePath;
+                //}
 
                 Color ghost = Color.FromArgb(0xDD, 0xDD, 0xDD);
                 foreach (InfoNode irn in inode.Parent.Nodes)
-                    hexBox1.Highlights.Add(new HexBoxLib.Highlight((int)irn.DataStart, (int)irn.DataEnd, ghost));
+                    hbMain.Highlights.Add(new HexBoxLib.Highlight((int)irn.DataStart, (int)irn.DataEnd, ghost));
 
-                hexBox1.Highlights.Add(new HexBoxLib.Highlight((int)inode.DataStart, (int)inode.DataEnd, inode.HighlightColor));
-                hexBox1.ScrollTo((int)(inode.DataStart >> 4));
-                hexBox1.Invalidate();
-
-                //foreach (Panel p in infopanels)
-                //    p.Visible = false;
-
-                //switch (inode.IType)
-                //{
-                //    case InfoType.Generic:
-                //        lblInfoGenericTitle.Text = ((GenericInfo)inode.Info).Title;
-                //        txtInfoGenericBody.Text = ((GenericInfo)inode.Info).Body;
-                //        pInfoGeneric.Visible = true;
-                //        break;
-                //}
+                hbMain.Highlights.Add(new HexBoxLib.Highlight((int)inode.DataStart, (int)inode.DataEnd, inode.HighlightColor));
+                hbMain.ScrollTo((int)(inode.DataStart >> 4));
+                hbMain.Invalidate();
 
                 Bridge.ShowInfo(inode.IType, inode.Info);
             }

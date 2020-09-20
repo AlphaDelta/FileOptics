@@ -1,4 +1,5 @@
 ﻿using FileOptics.Interface;
+using HexBoxLib;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -29,6 +30,10 @@ namespace FileOptics
             super.Nodes.Add(i);
         }
 
+        public void AppendNode(InfoNode i, TreeNode super)
+        {
+            _AppendNode(i, super);
+        }
         public void AppendNode(InfoNode i, InfoNode super)
         {
             _AppendNode(i, super);
@@ -41,6 +46,7 @@ namespace FileOptics
         Stream imgstream = null;
         public void ShowInfo(InfoType type, object info)
         {
+            /* Display info */
             switch (type)
             {
                 case InfoType.Generic:
@@ -48,6 +54,7 @@ namespace FileOptics
                     main.txtInfoGenericBody.Text = ((GenericInfo)info).Body;
                     break;
                 case InfoType.Binary:
+                case InfoType.BinaryMainFocus:
                     main.hbInfo.ReadBytes((byte[])info);
                     break;
                 case InfoType.ImageFile:
@@ -130,7 +137,9 @@ namespace FileOptics
             switch (type)
             {
                 case InfoType.Generic: p = main.pInfoGeneric; break;
-                case InfoType.Binary: p = main.pInfoBinary; break;
+                case InfoType.Binary:
+                case InfoType.BinaryMainFocus:
+                    p = main.pInfoBinary; break;
                 case InfoType.Image:
                 case InfoType.ImageFile:
                 case InfoType.ImageStream:

@@ -1,4 +1,5 @@
 ﻿using FileOptics.Interface;
+using K4os.Compression.LZ4;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,9 +26,9 @@ namespace FileOptics.TESV
                     new GenericInfo("Header", "Contains all metadata and pointer information for the save. Save headers are of variable-size as seen by the 'Header size' field."),
                     DataType.Critical,
                     0x00, 0x10);
+            Bridge.AppendNode(nHeader, root);
 
             /* Magic number : char[13] */
-            Bridge.AppendNode(nHeader, root);
             Bridge.AppendNode(
                 new InfoNode("Magic number", "binary",
                     InfoType.Generic,
@@ -253,6 +254,64 @@ namespace FileOptics.TESV
                     pos, stream.Position - 1),
                 root);
 
+            /* 'The meat' */
+            System.Windows.Forms.TreeNode parent = null;
+            if (comp == 2)
+            {
+                /* Decomp size : uint32*/
+                pos = stream.Position;
+                uint decompsize = ReadUInt32(stream, ref ib);
+                Bridge.AppendNode(
+                    new InfoNode("Decompressed size", "int",
+                        InfoType.Generic,
+                        new GenericInfo("Decompressed size", decompsize.ToString()),
+                        DataType.Critical,
+                        pos, stream.Position - 1),
+                    root);
+
+                /* Comp size : uint32*/
+                pos = stream.Position;
+                uint compsize = ReadUInt32(stream, ref ib);
+                Bridge.AppendNode(
+                    new InfoNode("Compressed size", "int",
+                        InfoType.Generic,
+                        new GenericInfo("Compressed size", compsize.ToString()),
+                        DataType.Critical,
+                        pos, stream.Position - 1),
+                    root);
+
+                /* Decompressed data */
+                pos = stream.Position;
+                byte[] compdata = new byte[compsize];
+                byte[] decompdata = new byte[decompsize];
+                if (stream.Read(compdata, 0, compdata.Length) != compdata.Length)
+                    throw new Exception("Compressed data ended earlier than expected.");
+
+                LZ4Codec.Decode(compdata, 0, compdata.Length, decompdata, 0, decompdata.Length);
+                InfoNode nDeComp =
+                    new InfoNode("Decompressed data", "block-purple",
+                        InfoType.BinaryMainFocus,
+                        decompdata,
+                        DataType.Critical,
+                        pos, stream.Length - 1);
+                Bridge.AppendNode(nDeComp, root);
+                parent = nDeComp;
+
+                stream = new MemoryStream(decompdata);
+            }
+            else
+            {
+                //pos = stream.Position;
+                //InfoNode nUnComp =
+                //    new InfoNode("Uncompressed data", "block-purple",
+                //        InfoType.Generic,
+                //        new GenericInfo("Uncompressed data", "Contains all save data in an uncompressed format."),
+                //        DataType.Critical,
+                //        pos, stream.Length - 1);
+                //parent = nUnComp;
+                parent = root;
+            }
+
             /* Form version : uint8 */
             pos = stream.Position;
             uint formversion = ReadUInt8(stream, ref ib);
@@ -262,7 +321,7 @@ namespace FileOptics.TESV
                     new GenericInfo("Form version", formversion.ToString()),
                     DataType.Critical,
                     pos, stream.Position - 1),
-                root);
+                parent);
 
             return true;
         }
