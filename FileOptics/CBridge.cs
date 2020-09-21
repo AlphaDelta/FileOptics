@@ -24,6 +24,8 @@ namespace FileOptics
 
         void _AppendNode(InfoNode i, TreeNode super)
         {
+            if (super == null) return;
+
             if (i.DType == DataType.Error)
                 i.ForeColor = Color.Red;
 

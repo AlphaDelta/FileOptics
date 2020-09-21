@@ -7,12 +7,15 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 
 namespace FileOptics.TESV
 {
     [ModuleAttrib("TESV Save File", 0x20, new byte[] { 0x54, 0x45, 0x53, 0x56, 0x5F, 0x53, 0x41, 0x56, 0x45, 0x47, 0x41, 0x4D, 0x45 })]
     public class ESS : IModule
     {
+        const int MAX_CHANGEFORMS = 30;
+
         public bool CanRead(Stream stream)
         {
             return true;
@@ -417,7 +420,301 @@ namespace FileOptics.TESV
             }
             #endregion
 
+            #region File location table
+            /* File location table */
+            pos = stream.Position;
+            InfoNode nFLT = new InfoNode("File location table", "block",
+                    InfoType.None,
+                    null,
+                    DataType.Critical,
+                    pos, 0);
+            Bridge.AppendNode(nFLT, parent);
+
+            uint formIDArrayCountOffset = ReadUInt32Basic(stream, "FormIDArrayCountOffset", nFLT, ref ib);
+            uint unknownTable3Offset = ReadUInt32Basic(stream, "UnknownTable3Offset", nFLT, ref ib);
+            uint globalDataTable1Offset = ReadUInt32Basic(stream, "GlobalDataTable1Offset", nFLT, ref ib);
+            uint globalDataTable2Offset = ReadUInt32Basic(stream, "GlobalDataTable2Offset", nFLT, ref ib);
+            uint changeFormsOffset = ReadUInt32Basic(stream, "ChangeFormsOffset", nFLT, ref ib);
+            uint globalDataTable3Offset = ReadUInt32Basic(stream, "GlobalDataTable3Offset", nFLT, ref ib);
+            uint globalDataTable1Count = ReadUInt32Basic(stream, "GlobalDataTable1Count", nFLT, ref ib);
+            uint globalDataTable2Count = ReadUInt32Basic(stream, "GlobalDataTable2Count", nFLT, ref ib);
+            uint globalDataTable3Count = ReadUInt32Basic(stream, "GlobalDataTable3Count", nFLT, ref ib);
+            uint changeFormCount = ReadUInt32Basic(stream, "ChangeFormCount", nFLT, ref ib);
+
+            pos = stream.Position;
+            stream.Seek(15 * 4, SeekOrigin.Current);
+            Bridge.AppendNode(
+                new InfoNode("Unused", "binary",
+                    InfoType.None,
+                    null,
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                nFLT);
+
+            nFLT.DataEnd = stream.Position - 1;
+            #endregion
+
+            /* Global data table 1 & 2 */
+            ReadGlobalDataTable(stream, parent, 1, globalDataTable1Count, ref ib);
+            ReadGlobalDataTable(stream, parent, 2, globalDataTable2Count, ref ib);
+
+            #region Change forms
+            pos = stream.Position;
+            InfoNode nCH = new InfoNode("Change form table", "block",
+                    InfoType.None,
+                    null,
+                    DataType.Critical,
+                    pos, 0);
+            Bridge.AppendNode(nCH, parent);
+
+            {
+                int i, oi;
+                for (i = 0; i < changeFormCount && i < MAX_CHANGEFORMS; i++)
+                {
+                    pos = stream.Position;
+                    InfoNode nCHEntry = new InfoNode("Change form", "block-trueblue",
+                            InfoType.None,
+                            null,
+                            DataType.Critical,
+                            pos, 0);
+                    Bridge.AppendNode(nCHEntry, nCH);
+                    ReadChangeForm(stream, nCHEntry, ref ib);
+                    nCHEntry.DataEnd = stream.Position - 1;
+                }
+                pos = stream.Position;
+                oi = i;
+                for (; i < changeFormCount; i++)
+                {
+                    ReadChangeForm(stream, null, ref ib);
+                }
+                if (pos != stream.Position)
+                {
+                    Bridge.AppendNode(
+                        new InfoNode($"Skipping {i - oi} entries...", "null",
+                            InfoType.None,
+                            null,
+                            DataType.Critical,
+                            pos, stream.Position - 1),
+                        nCH);
+                }
+            }
+
+            nCH.DataEnd = stream.Position - 1;
+            #endregion
+
+            /* Global data table 3 */
+            ReadGlobalDataTable(stream, parent, 3, globalDataTable3Count, ref ib);
+
             return true;
+        }
+
+        void ReadChangeForm(Stream stream, TreeNode parent, ref byte[] buffer)
+        {
+            uint formid = ReadFormIDBasic(stream, "Form ID", parent, ref buffer);
+            uint changeflags = ReadUInt32Basic(stream, "Change flags", parent, ref buffer);
+
+            /* Type : uint8 */
+            long pos = stream.Position;
+            uint type = ReadUInt8(stream, ref buffer);
+            int varlen = (int)(type >> 6);
+            int rtype = (int)(type & 0x3F);
+
+            string varlens = "uint8";
+            if (varlen == 1) varlens = "uint16";
+            else if (varlen == 2) varlens = "uint32";
+            else if (varlen == 3) varlens = "uint64";
+
+            Bridge.AppendNode(
+                new InfoNode("Type", "byte",
+                    InfoType.Generic,
+                    new GenericInfo("Type", $"Data length field type: {varlen} ({varlens})\r\nForm type: {rtype} (0x{rtype:X2})"),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+
+            /* Version : uint8 */
+            pos = stream.Position;
+            uint version = ReadUInt8(stream, ref buffer);
+
+            Bridge.AppendNode(
+                new InfoNode("Version", "byte",
+                    InfoType.Generic,
+                    new GenericInfo("Version", version.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+
+            /* Data length : varlen */
+            pos = stream.Position;
+            uint datalen = 0;
+            if (varlen == 0) datalen = ReadUInt8(stream, ref buffer);
+            else if (varlen == 1) datalen = ReadUInt16(stream, ref buffer);
+            else if (varlen == 2) datalen = ReadUInt32(stream, ref buffer);
+
+            Bridge.AppendNode(
+                new InfoNode("Data length", "int",
+                    InfoType.Generic,
+                    new GenericInfo("Data length", datalen.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            /* Decompressed length : varlen */
+            pos = stream.Position;
+            uint decomplen = 0;
+            if (varlen == 0) decomplen = ReadUInt8(stream, ref buffer);
+            else if (varlen == 1) decomplen = ReadUInt16(stream, ref buffer);
+            else if (varlen == 2) decomplen = ReadUInt32(stream, ref buffer);
+
+            Bridge.AppendNode(
+                new InfoNode("Decompiled length", "int",
+                    InfoType.Generic,
+                    new GenericInfo("Decompiled length", decomplen.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            /* Data */
+            SkipBasic(stream, "Change form data", "", parent, datalen);
+        }
+
+        uint ReadVarLen()
+        {
+            return 0;
+        }
+
+        void ReadGlobalDataTable(Stream stream, TreeNode parent, uint num, uint count, ref byte[] buffer)
+        {
+            long pos = stream.Position;
+            InfoNode nGDT1 = new InfoNode("Global data table " + num, "block",
+                    InfoType.None,
+                    null,
+                    DataType.Critical,
+                    pos, 0);
+            Bridge.AppendNode(nGDT1, parent);
+
+            for (int i = 0; i < count; i++)
+            {
+                ReadGlobalDataEntry(stream, nGDT1, ref buffer);
+            }
+
+            /* Glitched counter for 1005 */
+            if (num == 3) {
+                if (ReadUInt32(stream, ref buffer) == 1005)
+                {
+                    stream.Seek(-4, SeekOrigin.Current);
+                    ReadGlobalDataEntry(stream, nGDT1, "block-orange", ref buffer);
+                }
+                else stream.Seek(-4, SeekOrigin.Current);
+            }
+
+            nGDT1.DataEnd = stream.Position - 1;
+        }
+
+        private void ReadGlobalDataEntry(Stream stream, TreeNode parent, ref byte[] buffer) { ReadGlobalDataEntry(stream, parent, "block-trueblue", ref buffer); }
+        private void ReadGlobalDataEntry(Stream stream, TreeNode parent, string imgkey, ref byte[] buffer)
+        {
+            long pos = stream.Position;
+            InfoNode nEntry = new InfoNode("Entry", imgkey,
+                    InfoType.None,
+                    null,
+                    DataType.Critical,
+                    pos, 0);
+            Bridge.AppendNode(nEntry, parent);
+
+            uint type = ReadUInt32Basic(stream, "Entry type", nEntry, ref buffer);
+            nEntry.Text = GetGlobalDataTypeName(type);
+            uint len = ReadUInt32Basic(stream, "Entry length", nEntry, ref buffer);
+
+            SkipBasic(stream, "Data", "", nEntry, len);
+
+            nEntry.DataEnd = stream.Position - 1;
+        }
+
+        string GetGlobalDataTypeName(uint type)
+        {
+            switch (type)
+            {
+                case 0: return "Misc Stats";
+                case 1: return "Player Location";
+                case 2: return "TES";
+                case 3: return "Global Variables";
+                case 4: return "Created Objects";
+                case 5: return "Effects";
+                case 6: return "Weather";
+                case 7: return "Audio";
+                case 8: return "SkyCells";
+                case 100: return "Process Lists";
+                case 101: return "Combat";
+                case 102: return "Interface";
+                case 103: return "Actor Causes";
+                case 104: return "Unknown 104";
+                case 105: return "Detection Manager";
+                case 106: return "Location MetaData";
+                case 107: return "Quest Static Data";
+                case 108: return "StoryTeller";
+                case 109: return "Magic Favorites";
+                case 110: return "PlayerControls";
+                case 111: return "Story Event Manager";
+                case 112: return "Ingredient Shared";
+                case 113: return "MenuControls";
+                case 114: return "MenuTopicManager";
+                case 1000: return "Temp Effects";
+                case 1001: return "Papyrus";
+                case 1002: return "Anim Objects";
+                case 1003: return "Timer";
+                case 1004: return "Synchronized Animations";
+                case 1005: return "Main";
+                default: return "Unknown";
+            }
+        }
+
+        void SkipBasic(Stream stream, string name, string desc, TreeNode parent, uint amount)
+        {
+            long pos = stream.Position;
+            stream.Seek(amount, SeekOrigin.Current);
+
+            Bridge.AppendNode(
+                new InfoNode(name, "info",
+                    InfoType.Generic,
+                    new GenericInfo(name, desc),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+        }
+
+        uint ReadUInt32Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        {
+            long pos = stream.Position;
+            uint ret = ReadUInt32(stream, ref ib);
+
+            Bridge.AppendNode(
+                new InfoNode(name, "int",
+                    InfoType.Generic,
+                    new GenericInfo(name, ret.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            return ret;
+        }
+
+        uint ReadFormIDBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        {
+            long pos = stream.Position;
+            uint ret = ReadFormID(stream, ref ib);
+
+            Bridge.AppendNode(
+                new InfoNode(name, "int",
+                    InfoType.Generic,
+                    new GenericInfo(name, ret.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            return ret;
         }
 
         private string ReadWString(Stream stream, ref byte[] ib)
@@ -429,6 +726,14 @@ namespace FileOptics.TESV
                 throw new Exception("Data ended earlier than expected.");
 
             return Encoding.ASCII.GetString(sb);
+        }
+
+        uint ReadFormID(Stream stream, ref byte[] buffer)
+        {
+            if (stream.Read(buffer, 0, 3) != 3)
+                throw new Exception("Data ended earlier than expected.");
+
+            return (uint)buffer[2] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[0];
         }
 
         ulong ReadUInt64(Stream stream, ref byte[] buffer)
