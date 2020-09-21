@@ -185,6 +185,7 @@ namespace FileOptics
         private void tree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             hbMain.Highlights.Clear();
+            contextTreeDump.Enabled = false;
             if (e.Node.Level == 0)
             {
                 if (!(e.Node is RootInfoNode)) return;
@@ -217,6 +218,9 @@ namespace FileOptics
             {
                 if (!(e.Node is InfoNode)) return;
                 InfoNode inode = (InfoNode)e.Node;
+
+                if(inode.IType == InfoType.Binary || inode.IType == InfoType.BinaryMainFocus)
+                    contextTreeDump.Enabled = true;
 
                 /* Get root node */
                 TreeNode root = this.tree.SelectedNode;
@@ -263,6 +267,33 @@ namespace FileOptics
         private void menuFile_Click(object sender, EventArgs e)
         {
             LoadFile(@"./testfile");
+        }
+
+        private void contextTreeDump_Click(object sender, EventArgs e)
+        {
+            if (!(tree.SelectedNode is InfoNode)) return;
+            InfoNode inode = (InfoNode)tree.SelectedNode;
+
+            if (inode.IType != InfoType.Binary && inode.IType != InfoType.BinaryMainFocus)
+                return;
+
+            string location = null;
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "Binary files (*.bin)|*.bin";
+                if (sfd.ShowDialog() != DialogResult.OK) return;
+                location = sfd.FileName;
+            }
+
+            if (String.IsNullOrWhiteSpace(location)) return;
+
+            byte[] info = (byte[])inode.Info;
+            using (FileStream fs = File.Open(location, FileMode.Create))
+            {
+                fs.Write(info, 0, info.Length);
+            }
+
+            MessageBox.Show(this, $"{info.Length} bytes of data successfully written to '{Path.GetFileName(location)}'", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
