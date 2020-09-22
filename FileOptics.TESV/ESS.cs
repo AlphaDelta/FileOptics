@@ -16,8 +16,6 @@ namespace FileOptics.TESV
     [ModuleAttrib("TESV Save File", 0x20, new byte[] { 0x54, 0x45, 0x53, 0x56, 0x5F, 0x53, 0x41, 0x56, 0x45, 0x47, 0x41, 0x4D, 0x45 })]
     public class ESS : IModule
     {
-        const int MAX_CHANGEFORMS = 30;
-
         public bool CanRead(Stream stream)
         {
             return true;
@@ -476,9 +474,10 @@ namespace FileOptics.TESV
 
             /* Scope - Form reading/parsing */
             {
-                /* Account (until MAX_CHANGEFORMS) */
-                int i, oi;
-                for (i = 0; i < changeFormCount && i < MAX_CHANGEFORMS; i++)
+                int i = 0;
+                int oi = i;
+                long opos = stream.Position;
+                for (; i < changeFormCount; i++)
                 {
                     pos = stream.Position;
                     InfoNode nCHEntry = new InfoNode("Change form", "block-trueblue",
@@ -490,45 +489,29 @@ namespace FileOptics.TESV
                     ChangeForm form = ReadChangeForm(stream, nCHEntry, ref ib);
                     formcount[form.Type]++;
 
-                    nCHEntry.DataEnd = stream.Position - 1;
-                    Bridge.AppendNode(nCHEntry, nCH);
-                }
-
-                /* Skip */
-                oi = i;
-                if (i < changeFormCount)
-                {
-                    long opos = stream.Position;
-                    for (; i < changeFormCount; i++)
+                    /* White list specific change forms against skipping */
+                    if (i < 3 || form.FormID == 0x400014)
                     {
-                        pos = stream.Position;
-                        InfoNode nCHEntry = new InfoNode("Change form", "block-trueblue",
-                                InfoType.None,
-                                null,
-                                DataType.Critical,
-                                pos, 0);
-
-                        ChangeForm form = ReadChangeForm(stream, nCHEntry, ref ib);
-                        formcount[form.Type]++;
-
-                        if (form.FormID == 0x400014)
-                        {
+                        if (i - oi > 1) //At this point if i - oi == 1, the previous record was accounted for in the structure tree, we didn't skip anything.
                             Bridge.AppendNode(
-                                new InfoNode($"Skipping {i - oi} entries...", "info",
+                                new InfoNode($"Skipping {i - oi - 1} entries...", "info",
                                     InfoType.None,
                                     null,
                                     DataType.Critical,
                                     opos, stream.Position - 1),
                                 nCH);
-                            opos = stream.Position;
-                            oi = i;
 
-                            nCHEntry.DataEnd = stream.Position - 1;
-                            Bridge.AppendNode(nCHEntry, nCH);
-                        }
+                        opos = stream.Position;
+                        oi = i;
+
+                        nCHEntry.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nCHEntry, nCH);
                     }
+                }
+                if (i - oi > 0) //At this point if i - oi == 1, a record WAS actually skipped
+                {
                     Bridge.AppendNode(
-                        new InfoNode($"Skipping {i - oi} entries...", "info",
+                        new InfoNode($"Skipping {i - oi - 1} entries...", "info",
                             InfoType.None,
                             null,
                             DataType.Critical,
@@ -539,11 +522,16 @@ namespace FileOptics.TESV
 
             /* Scope - Form count */
             {
-                int i = 0;
-                ListViewItem[] items = new ListViewItem[cftvals.Length];
+                int i = 0, total = 0;
+                ListViewItem[] items = new ListViewItem[cftvals.Length + 1];
 
                 foreach (KeyValuePair<ChangeFormType, int> kv in formcount)
+                {
+                    total += kv.Value;
                     items[i++] = new ListViewItem(new string[] { Enum.GetName(typeof(ChangeFormType), kv.Key), kv.Value.ToString() });
+                }
+
+                items[i++] = new ListViewItem(new string[] { "", $"{total} total" });
 
                 ((TableInfo)nCH.Info).Items = items;
             }
@@ -621,9 +609,9 @@ namespace FileOptics.TESV
             else if (varlen == 2) decomplen = ReadUInt32(stream, ref buffer);
 
             Bridge.AppendNode(
-                new InfoNode("Decompiled length", "int",
+                new InfoNode("Decompressed length", "int",
                     InfoType.Generic,
-                    new GenericInfo("Decompiled length", decomplen.ToString()),
+                    new GenericInfo("Decompressed length", decomplen.ToString()),
                     DataType.Critical,
                     pos, stream.Position - 1),
                 parent);
@@ -639,6 +627,7 @@ namespace FileOptics.TESV
             long pos = stream.Position;
             uint ret = ReadUInt32(stream, ref ib);
 
+            /* Build list of set flags */
             StringBuilder sb = new StringBuilder();
             ChangeFormFlag[] cffvals = (ChangeFormFlag[])Enum.GetValues(typeof(ChangeFormFlag));
             foreach (ChangeFormFlag flag in cffvals)

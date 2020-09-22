@@ -31,9 +31,12 @@
             this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tree = new System.Windows.Forms.TreeView();
+            this.contextTree = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.contextTreeDump = new System.Windows.Forms.ToolStripMenuItem();
             this.imglTree = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.pInfoBinary = new System.Windows.Forms.Panel();
+            this.hbInfo = new HexBoxLib.HexBox();
             this.pInfoTable = new System.Windows.Forms.Panel();
             this.lvInfoTable = new System.Windows.Forms.ListView();
             this.pInfoImage = new System.Windows.Forms.Panel();
@@ -41,16 +44,14 @@
             this.pInfoGeneric = new System.Windows.Forms.Panel();
             this.txtInfoGenericBody = new System.Windows.Forms.TextBox();
             this.lblInfoGenericTitle = new System.Windows.Forms.Label();
+            this.hbMain = new HexBoxLib.HexBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextTree = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.contextTreeDump = new System.Windows.Forms.ToolStripMenuItem();
-            this.hbInfo = new HexBoxLib.HexBox();
-            this.hbMain = new HexBoxLib.HexBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.contextTree.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -61,7 +62,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.imgInfo)).BeginInit();
             this.pInfoGeneric.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.contextTree.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -83,8 +83,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Size = new System.Drawing.Size(1146, 416);
-            this.splitContainer1.SplitterDistance = 158;
+            this.splitContainer1.Size = new System.Drawing.Size(1255, 416);
+            this.splitContainer1.SplitterDistance = 213;
             this.splitContainer1.TabIndex = 0;
             this.splitContainer1.TabStop = false;
             // 
@@ -101,9 +101,24 @@
             this.tree.Name = "tree";
             this.tree.SelectedImageIndex = 0;
             this.tree.ShowLines = false;
-            this.tree.Size = new System.Drawing.Size(156, 406);
+            this.tree.Size = new System.Drawing.Size(211, 406);
             this.tree.TabIndex = 0;
             this.tree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tree_AfterSelect);
+            // 
+            // contextTree
+            // 
+            this.contextTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.contextTreeDump});
+            this.contextTree.Name = "contextTree";
+            this.contextTree.Size = new System.Drawing.Size(179, 26);
+            // 
+            // contextTreeDump
+            // 
+            this.contextTreeDump.Enabled = false;
+            this.contextTreeDump.Name = "contextTreeDump";
+            this.contextTreeDump.Size = new System.Drawing.Size(178, 22);
+            this.contextTreeDump.Text = "Dump binary data...";
+            this.contextTreeDump.Click += new System.EventHandler(this.contextTreeDump_Click);
             // 
             // imglTree
             // 
@@ -131,8 +146,8 @@
             // 
             this.splitContainer2.Panel2.BackColor = System.Drawing.SystemColors.Window;
             this.splitContainer2.Panel2.Controls.Add(this.hbMain);
-            this.splitContainer2.Size = new System.Drawing.Size(984, 416);
-            this.splitContainer2.SplitterDistance = 332;
+            this.splitContainer2.Size = new System.Drawing.Size(1038, 416);
+            this.splitContainer2.SplitterDistance = 326;
             this.splitContainer2.TabIndex = 0;
             this.splitContainer2.TabStop = false;
             // 
@@ -143,6 +158,21 @@
             this.pInfoBinary.Name = "pInfoBinary";
             this.pInfoBinary.Size = new System.Drawing.Size(64, 64);
             this.pInfoBinary.TabIndex = 2;
+            // 
+            // hbInfo
+            // 
+            this.hbInfo.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hbInfo.BackColor = System.Drawing.Color.White;
+            this.hbInfo.ContextMenuStrip = this.contextTree;
+            this.hbInfo.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hbInfo.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hbInfo.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
+            this.hbInfo.Location = new System.Drawing.Point(0, 0);
+            this.hbInfo.Name = "hbInfo";
+            this.hbInfo.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
+            this.hbInfo.Size = new System.Drawing.Size(64, 64);
+            this.hbInfo.TabIndex = 0;
+            this.hbInfo.Text = "hexBox2";
             // 
             // pInfoTable
             // 
@@ -218,53 +248,6 @@
             this.lblInfoGenericTitle.TabIndex = 0;
             this.lblInfoGenericTitle.Text = "Title";
             // 
-            // menuStrip1
-            // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuFile});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1144, 24);
-            this.menuStrip1.TabIndex = 1;
-            this.menuStrip1.Text = "menuStrip1";
-            // 
-            // menuFile
-            // 
-            this.menuFile.Name = "menuFile";
-            this.menuFile.Size = new System.Drawing.Size(37, 20);
-            this.menuFile.Text = "File";
-            this.menuFile.Click += new System.EventHandler(this.menuFile_Click);
-            // 
-            // contextTree
-            // 
-            this.contextTree.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.contextTreeDump});
-            this.contextTree.Name = "contextTree";
-            this.contextTree.Size = new System.Drawing.Size(181, 48);
-            // 
-            // contextTreeDump
-            // 
-            this.contextTreeDump.Enabled = false;
-            this.contextTreeDump.Name = "contextTreeDump";
-            this.contextTreeDump.Size = new System.Drawing.Size(180, 22);
-            this.contextTreeDump.Text = "Dump binary data...";
-            this.contextTreeDump.Click += new System.EventHandler(this.contextTreeDump_Click);
-            // 
-            // hbInfo
-            // 
-            this.hbInfo.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hbInfo.BackColor = System.Drawing.Color.White;
-            this.hbInfo.ContextMenuStrip = this.contextTree;
-            this.hbInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hbInfo.HeaderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hbInfo.HexTableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
-            this.hbInfo.Location = new System.Drawing.Point(0, 0);
-            this.hbInfo.Name = "hbInfo";
-            this.hbInfo.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hbInfo.Size = new System.Drawing.Size(64, 64);
-            this.hbInfo.TabIndex = 0;
-            this.hbInfo.Text = "hexBox2";
-            // 
             // hbMain
             // 
             this.hbMain.ASCIITableColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
@@ -275,16 +258,33 @@
             this.hbMain.Location = new System.Drawing.Point(0, 0);
             this.hbMain.Name = "hbMain";
             this.hbMain.OffsetColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(191)))));
-            this.hbMain.Size = new System.Drawing.Size(646, 414);
+            this.hbMain.Size = new System.Drawing.Size(706, 414);
             this.hbMain.TabIndex = 0;
             this.hbMain.Text = "hexBox1";
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuFile});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1253, 24);
+            this.menuStrip1.TabIndex = 1;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // menuFile
+            // 
+            this.menuFile.Name = "menuFile";
+            this.menuFile.Size = new System.Drawing.Size(37, 20);
+            this.menuFile.Text = "File";
+            this.menuFile.Click += new System.EventHandler(this.menuFile_Click);
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1144, 439);
+            this.ClientSize = new System.Drawing.Size(1253, 439);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -295,6 +295,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.contextTree.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
@@ -307,7 +308,6 @@
             this.pInfoGeneric.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.contextTree.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
