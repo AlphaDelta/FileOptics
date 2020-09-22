@@ -84,6 +84,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangeForm.cs" />
+    <Compile Include="ChangeFormFlag.cs" />
+    <Compile Include="ChangeFormType.cs" />
     <Compile Include="ESS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

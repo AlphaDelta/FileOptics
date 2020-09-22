@@ -2,6 +2,8 @@
 using K4os.Compression.LZ4;
 using System;
 using System.Collections.Generic;
+using System.Data.OleDb;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -461,13 +463,20 @@ namespace FileOptics.TESV
             #region Change forms
             pos = stream.Position;
             InfoNode nCH = new InfoNode("Change form table", "block",
-                    InfoType.None,
-                    null,
+                    InfoType.Table,
+                    new TableInfo(View.Details, new string[] { "Change form type", "Count" }, null),
                     DataType.Critical,
                     pos, 0);
             Bridge.AppendNode(nCH, parent);
 
+            Dictionary<ChangeFormType, int> formcount = new Dictionary<ChangeFormType, int>();
+            ChangeFormType[] cftvals = (ChangeFormType[])Enum.GetValues(typeof(ChangeFormType));
+            foreach (ChangeFormType c in cftvals)
+                formcount[c] = 0;
+
+            /* Scope - Form reading/parsing */
             {
+                /* Account (until MAX_CHANGEFORMS) */
                 int i, oi;
                 for (i = 0; i < changeFormCount && i < MAX_CHANGEFORMS; i++)
                 {
@@ -477,26 +486,66 @@ namespace FileOptics.TESV
                             null,
                             DataType.Critical,
                             pos, 0);
-                    Bridge.AppendNode(nCHEntry, nCH);
-                    ReadChangeForm(stream, nCHEntry, ref ib);
+
+                    ChangeForm form = ReadChangeForm(stream, nCHEntry, ref ib);
+                    formcount[form.Type]++;
+
                     nCHEntry.DataEnd = stream.Position - 1;
+                    Bridge.AppendNode(nCHEntry, nCH);
                 }
-                pos = stream.Position;
+
+                /* Skip */
                 oi = i;
-                for (; i < changeFormCount; i++)
+                if (i < changeFormCount)
                 {
-                    ReadChangeForm(stream, null, ref ib);
-                }
-                if (pos != stream.Position)
-                {
+                    long opos = stream.Position;
+                    for (; i < changeFormCount; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nCHEntry = new InfoNode("Change form", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ChangeForm form = ReadChangeForm(stream, nCHEntry, ref ib);
+                        formcount[form.Type]++;
+
+                        if (form.FormID == 0x400014)
+                        {
+                            Bridge.AppendNode(
+                                new InfoNode($"Skipping {i - oi} entries...", "info",
+                                    InfoType.None,
+                                    null,
+                                    DataType.Critical,
+                                    opos, stream.Position - 1),
+                                nCH);
+                            opos = stream.Position;
+                            oi = i;
+
+                            nCHEntry.DataEnd = stream.Position - 1;
+                            Bridge.AppendNode(nCHEntry, nCH);
+                        }
+                    }
                     Bridge.AppendNode(
-                        new InfoNode($"Skipping {i - oi} entries...", "null",
+                        new InfoNode($"Skipping {i - oi} entries...", "info",
                             InfoType.None,
                             null,
                             DataType.Critical,
-                            pos, stream.Position - 1),
+                            opos, stream.Position - 1),
                         nCH);
                 }
+            }
+
+            /* Scope - Form count */
+            {
+                int i = 0;
+                ListViewItem[] items = new ListViewItem[cftvals.Length];
+
+                foreach (KeyValuePair<ChangeFormType, int> kv in formcount)
+                    items[i++] = new ListViewItem(new string[] { Enum.GetName(typeof(ChangeFormType), kv.Key), kv.Value.ToString() });
+
+                ((TableInfo)nCH.Info).Items = items;
             }
 
             nCH.DataEnd = stream.Position - 1;
@@ -508,16 +557,19 @@ namespace FileOptics.TESV
             return true;
         }
 
-        void ReadChangeForm(Stream stream, TreeNode parent, ref byte[] buffer)
+        ChangeForm ReadChangeForm(Stream stream, TreeNode parent, ref byte[] buffer)
         {
             uint formid = ReadFormIDBasic(stream, "Form ID", parent, ref buffer);
-            uint changeflags = ReadUInt32Basic(stream, "Change flags", parent, ref buffer);
+            uint changeflags = ReadChangeFormFlags(stream, "Change flags", parent, ref buffer);
 
             /* Type : uint8 */
             long pos = stream.Position;
             uint type = ReadUInt8(stream, ref buffer);
             int varlen = (int)(type >> 6);
             int rtype = (int)(type & 0x3F);
+
+            string typename = Enum.GetName(typeof(ChangeFormType), (ChangeFormType)rtype);
+            if (parent != null) parent.Text = formid == 0x400014 ? typename + " (Player)" : typename;
 
             string varlens = "uint8";
             if (varlen == 1) varlens = "uint16";
@@ -578,6 +630,30 @@ namespace FileOptics.TESV
 
             /* Data */
             SkipBasic(stream, "Change form data", "", parent, datalen);
+
+            return new ChangeForm() { FormID = formid, ChangeFlags = changeflags, Type = (ChangeFormType)rtype };
+        }
+
+        private uint ReadChangeFormFlags(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        {
+            long pos = stream.Position;
+            uint ret = ReadUInt32(stream, ref ib);
+
+            StringBuilder sb = new StringBuilder();
+            ChangeFormFlag[] cffvals = (ChangeFormFlag[])Enum.GetValues(typeof(ChangeFormFlag));
+            foreach (ChangeFormFlag flag in cffvals)
+                if ((ret & ((uint)flag)) == ((uint)flag))
+                    sb.AppendLine(Enum.GetName(typeof(ChangeFormFlag), flag));
+
+            Bridge.AppendNode(
+                new InfoNode(name, "int",
+                    InfoType.Generic,
+                    new GenericInfo(name, Convert.ToString(ret, 2).PadLeft(8 * 4, '0') + "\r\n\r\n" + sb.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            return ret;
         }
 
         uint ReadVarLen()
@@ -601,7 +677,8 @@ namespace FileOptics.TESV
             }
 
             /* Glitched counter for 1005 */
-            if (num == 3) {
+            if (num == 3)
+            {
                 if (ReadUInt32(stream, ref buffer) == 1005)
                 {
                     stream.Seek(-4, SeekOrigin.Current);
@@ -709,7 +786,7 @@ namespace FileOptics.TESV
             Bridge.AppendNode(
                 new InfoNode(name, "int",
                     InfoType.Generic,
-                    new GenericInfo(name, ret.ToString()),
+                    new GenericInfo(name, $"{ret:X6}"),
                     DataType.Critical,
                     pos, stream.Position - 1),
                 parent);
@@ -728,12 +805,12 @@ namespace FileOptics.TESV
             return Encoding.ASCII.GetString(sb);
         }
 
-        uint ReadFormID(Stream stream, ref byte[] buffer)
+        uint ReadFormID(Stream stream, ref byte[] buffer) //BIG ENDIAN
         {
             if (stream.Read(buffer, 0, 3) != 3)
                 throw new Exception("Data ended earlier than expected.");
 
-            return (uint)buffer[2] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[0];
+            return (uint)buffer[0] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[2];
         }
 
         ulong ReadUInt64(Stream stream, ref byte[] buffer)
