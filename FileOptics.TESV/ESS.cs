@@ -526,18 +526,18 @@ namespace FileOptics.TESV
                 {
                     if (!(n is InfoNode)) continue;
                     InfoNode info = (InfoNode)n;
-                    if (info.Text != "ACHR") continue;
+                    if (info.SecondaryInfo.Count < 1) continue;
+                    ChangeForm form = (ChangeForm)info.SecondaryInfo[0];
 
-                    ReadACHRForm(stream, n.LastNode, ref ib);
+                    ((GenericInfo)((InfoNode)info.Nodes[1]).Info).Body += ParseChangeFlags(form.ChangeFlags, form.Type);
+
+                    switch (form.Type)
+                    {
+                        case ChangeFormType.ACHR:
+                            ReadACHRForm(stream, n.LastNode, ref ib);
+                            break;
+                    }
                 }
-
-                ///TODO: Implement flag code... somewhere???
-                //for (int i = 0, bit = 0x01; i < 32; i++)
-                //{
-                //    uint bitval = ret & (uint)(bit << i);
-
-
-                //}
             }
 
             /* Scope - Form count */
@@ -568,6 +568,22 @@ namespace FileOptics.TESV
         void ReadACHRForm(Stream stream, TreeNode parent, ref byte[] buffer)
         {
 
+        }
+
+        string ParseChangeFlags(uint flags, ChangeFormType type)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine();
+            sb.AppendLine();
+
+            Type flagenum = ChangeFormFlagEnums.GetEnum(type);
+            uint[] flagset = (uint[])Enum.GetValues(flagenum);
+
+            foreach(uint flag in flagset)
+                if ((flags & flag) == flag)
+                    sb.AppendLine(Enum.GetName(flagenum, flag));
+
+            return sb.ToString();
         }
 
         ChangeForm ReadChangeForm(Stream stream, TreeNode parent, ref byte[] buffer)
@@ -644,7 +660,10 @@ namespace FileOptics.TESV
             /* Data */
             SkipBasic(stream, "Change form data", "", parent, datalen);
 
-            return new ChangeForm() { FormID = formid, ChangeFlags = changeflags, Type = (ChangeFormType)rtype };
+            ChangeForm ret = new ChangeForm() { FormID = formid, ChangeFlags = changeflags, Type = (ChangeFormType)rtype };
+            ((InfoNode)parent).SecondaryInfo.Add(ret);
+
+            return ret;
         }
 
         private uint ReadChangeFormFlags(Stream stream, string name, TreeNode parent, ref byte[] ib)
@@ -657,7 +676,8 @@ namespace FileOptics.TESV
                     InfoType.Generic,
                     new GenericInfo(name, Convert.ToString(ret, 2).PadLeft(8 * 4, '0')),
                     DataType.Critical,
-                    pos, stream.Position - 1),
+                    pos, stream.Position - 1)
+                { SecondaryInfo = new List<object>(new object[] { ret }) },
                 parent);
 
             return ret;
