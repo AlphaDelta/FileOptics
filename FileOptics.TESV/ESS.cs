@@ -472,7 +472,7 @@ namespace FileOptics.TESV
             foreach (ChangeFormType c in cftvals)
                 formcount[c] = 0;
 
-            /* Scope - Form reading/parsing */
+            /* Scope - Form cataloging */
             {
                 int i = 0;
                 int oi = i;
@@ -520,6 +520,26 @@ namespace FileOptics.TESV
                 }
             }
 
+            /* Scope - Parsing */
+            {
+                foreach (TreeNode n in nCH.Nodes)
+                {
+                    if (!(n is InfoNode)) continue;
+                    InfoNode info = (InfoNode)n;
+                    if (info.Text != "ACHR") continue;
+
+                    ReadACHRForm(stream, n.LastNode, ref ib);
+                }
+
+                ///TODO: Implement flag code... somewhere???
+                //for (int i = 0, bit = 0x01; i < 32; i++)
+                //{
+                //    uint bitval = ret & (uint)(bit << i);
+
+
+                //}
+            }
+
             /* Scope - Form count */
             {
                 int i = 0, total = 0;
@@ -543,6 +563,11 @@ namespace FileOptics.TESV
             ReadGlobalDataTable(stream, parent, 3, globalDataTable3Count, ref ib);
 
             return true;
+        }
+
+        void ReadACHRForm(Stream stream, TreeNode parent, ref byte[] buffer)
+        {
+
         }
 
         ChangeForm ReadChangeForm(Stream stream, TreeNode parent, ref byte[] buffer)
@@ -627,17 +652,10 @@ namespace FileOptics.TESV
             long pos = stream.Position;
             uint ret = ReadUInt32(stream, ref ib);
 
-            /* Build list of set flags */
-            StringBuilder sb = new StringBuilder();
-            ChangeFormFlag[] cffvals = (ChangeFormFlag[])Enum.GetValues(typeof(ChangeFormFlag));
-            foreach (ChangeFormFlag flag in cffvals)
-                if ((ret & ((uint)flag)) == ((uint)flag))
-                    sb.AppendLine(Enum.GetName(typeof(ChangeFormFlag), flag));
-
             Bridge.AppendNode(
                 new InfoNode(name, "int",
                     InfoType.Generic,
-                    new GenericInfo(name, Convert.ToString(ret, 2).PadLeft(8 * 4, '0') + "\r\n\r\n" + sb.ToString()),
+                    new GenericInfo(name, Convert.ToString(ret, 2).PadLeft(8 * 4, '0')),
                     DataType.Critical,
                     pos, stream.Position - 1),
                 parent);
