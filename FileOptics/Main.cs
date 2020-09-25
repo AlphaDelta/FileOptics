@@ -166,7 +166,10 @@ namespace FileOptics
                         fs.Seek(0, SeekOrigin.Begin);
                         RootInfoNode root = new RootInfoNode(fname, file, Root.Modules[valid[0]]) { ImageKey = "file", SelectedImageKey = "file" };
                         Root.Modules[valid[0]].Read(root, fs);
+
+                        tree.BeginUpdate();
                         Bridge.AddRootNode(root);
+                        tree.EndUpdate();
                     }
                 });
             }

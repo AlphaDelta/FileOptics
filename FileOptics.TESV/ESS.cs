@@ -378,7 +378,7 @@ namespace FileOptics.TESV
             #endregion
 
             #region Light plugin info
-            if (isSSE)
+            if (isSSE && formversion > 77) ///TODO: Is formversion > 77 correct in this if statement???
             {
                 /* Plugin info */
                 pos = stream.Position;
@@ -413,7 +413,7 @@ namespace FileOptics.TESV
                 {
                     pos = stream.Position;
                     string plugin = ReadWString(stream, ref ib);
-                    Bridge.AppendNode(new InfoNode(plugin, "str", InfoType.None, null, DataType.Critical, pos, stream.Position - 1), nPlugins);
+                    Bridge.AppendNode(new InfoNode(plugin, "str", InfoType.None, null, DataType.Critical, pos, stream.Position - 1), nLightPlugins);
                 }
 
                 nLightPlugins.DataEnd = nLightPluginInfo.DataEnd = stream.Position - 1;
@@ -477,6 +477,7 @@ namespace FileOptics.TESV
                 int i = 0;
                 int oi = i;
                 long opos = stream.Position;
+                int ACHR = 0;
                 for (; i < changeFormCount; i++)
                 {
                     pos = stream.Position;
@@ -490,7 +491,7 @@ namespace FileOptics.TESV
                     formcount[form.Type]++;
 
                     /* White list specific change forms against skipping */
-                    if (i < 3 || form.FormID == 0x400014)
+                    if (i < 3 || form.FormID == 0x400014 || (form.Type == ChangeFormType.ACHR && ACHR++ < 3))
                     {
                         if (i - oi > 1) //At this point if i - oi == 1, the previous record was accounted for in the structure tree, we didn't skip anything.
                             Bridge.AppendNode(
@@ -522,6 +523,8 @@ namespace FileOptics.TESV
 
             /* Scope - Parsing */
             {
+                long lastpos = stream.Position;
+
                 foreach (TreeNode n in nCH.Nodes)
                 {
                     if (!(n is InfoNode)) continue;
@@ -534,10 +537,12 @@ namespace FileOptics.TESV
                     switch (form.Type)
                     {
                         case ChangeFormType.ACHR:
-                            ReadACHRForm(stream, n.LastNode, ref ib);
+                            ReadACHRForm(stream, form, (InfoNode)n.LastNode, ref ib);
                             break;
                     }
                 }
+
+                stream.Seek(lastpos, SeekOrigin.Begin);
             }
 
             /* Scope - Form count */
@@ -565,9 +570,171 @@ namespace FileOptics.TESV
             return true;
         }
 
-        void ReadACHRForm(Stream stream, TreeNode parent, ref byte[] buffer)
+        void ReadACHRForm(Stream stream, ChangeForm form, InfoNode parent, ref byte[] buffer)
         {
+            stream.Seek(parent.DataStart, SeekOrigin.Begin);
 
+            long pos;
+            if (form.HasFlag(ChangeFormFlagACHR.CHANGE_REFR_MOVE))
+            {
+                pos = stream.Position;
+                InfoNode nRef = new InfoNode("CHANGE_REFR_MOVE", "block-trueblue",
+                        InfoType.None,
+                        null,
+                        DataType.Critical,
+                        pos, 0);
+
+                ReadFormIDBasic(stream, "World cell", nRef, ref buffer);
+                ReadFloatBasic(stream, "Position 1 (X?)", nRef, ref buffer);
+                ReadFloatBasic(stream, "Position 2 (Y?)", nRef, ref buffer);
+                ReadFloatBasic(stream, "Position 3 (Z?)", nRef, ref buffer);
+                ReadFloatBasic(stream, "Rotation 1 (Pitch?)", nRef, ref buffer);
+                ReadFloatBasic(stream, "Rotation 2 (Roll?)", nRef, ref buffer);
+                ReadFloatBasic(stream, "Rotation 3 (Yaw?)", nRef, ref buffer);
+
+                nRef.DataEnd = stream.Position - 1;
+                Bridge.AppendNode(nRef, parent);
+            }
+            if (form.HasFlag(ChangeFormFlagACHR.CHANGE_REFR_HAVOK_MOVE))
+            {
+                pos = stream.Position;
+                InfoNode nRef = new InfoNode("CHANGE_REFR_HAVOK_MOVE", "block-trueblue",
+                        InfoType.None,
+                        null,
+                        DataType.Critical,
+                        pos, 0);
+
+                uint datalen = ReadVarLenBasic(stream, "Data length", nRef, ref buffer);
+                SkipBasic(stream, "Data", "", nRef, datalen);
+
+                nRef.DataEnd = stream.Position - 1;
+                Bridge.AppendNode(nRef, parent);
+            }
+
+            /* Unknown data */
+            ReadUInt32Basic(stream, "Unknown data 1", parent, ref buffer);
+            ReadUInt32Basic(stream, "Unknown data 2", parent, ref buffer);
+
+            uint hasextradata =
+                ((uint)ChangeFormFlagACHR.CHANGE_REFR_EXTRA_OWNERSHIP)
+                | ((uint)ChangeFormFlagACHR.CHANGE_REFR_PROMOTED)
+                | ((uint)ChangeFormFlagACHR.CHANGE_ACTOR_EXTRA_PACKAGE_DATA)
+                | ((uint)ChangeFormFlagACHR.CHANGE_ACTOR_EXTRA_MERCHANT_CONTAINER)
+                | ((uint)ChangeFormFlagACHR.CHANGE_ACTOR_EXTRA_DISMEMBERED_LIMBS)
+                | ((uint)ChangeFormFlagACHR.CHANGE_REFR_EXTRA_ACTIVATING_CHILDREN)
+                | ((uint)ChangeFormFlagACHR.CHANGE_REFR_EXTRA_ENCOUNTER_ZONE)
+                | ((uint)ChangeFormFlagACHR.CHANGE_REFR_EXTRA_CREATED_ONLY)
+                | (unchecked((uint)ChangeFormFlagACHR.CHANGE_REFR_EXTRA_GAME_ONLY))
+                ;
+
+            if ((form.ChangeFlags & hasextradata) != 0)
+            {
+                pos = stream.Position;
+                InfoNode nRef = new InfoNode("EXTRA data array", "block-trueblue",
+                        InfoType.None,
+                        null,
+                        DataType.Critical,
+                        pos, 0);
+
+                uint count = ReadVarLenBasic(stream, "Extra data count", nRef, ref buffer);
+
+                for (int i = 0; i < count; i++)
+                {
+                    pos = stream.Position;
+                    InfoNode nExtra = new InfoNode("Extra data block", "block-trueblue",
+                            InfoType.None,
+                            null,
+                            DataType.Critical,
+                            pos, 0);
+
+                    ReadExtraDataEntry(stream, nExtra, ref buffer);
+
+                    nExtra.DataEnd = stream.Position - 1;
+                    Bridge.AppendNode(nExtra, nRef);
+                }
+
+                nRef.DataEnd = stream.Position - 1;
+                Bridge.AppendNode(nRef, parent);
+            }
+        }
+
+        private void ReadExtraDataEntry(Stream stream, InfoNode parent, ref byte[] buffer)
+        {
+            uint extype = ReadUInt8Basic(stream, "Data type", parent, ref buffer);
+
+            uint count;
+            switch (extype)
+            {
+                case 93:
+                    parent.Text = "ActorCause";
+
+                    ReadUInt32Basic(stream, "Actor Cause ID", parent, ref buffer);
+
+                    break;
+                case 112:
+                    parent.Text = "EncounterZone";
+
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+
+                    break;
+                case 136:
+                    parent.Text = "AliasInstanceArray";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    long pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("Array item", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    break;
+                case 152:
+                    parent.Text = "AttachedArrows3D";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("AttachedArrows3DData", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        uint formid = ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        if (formid > 0)
+                        {
+                            uint unk = ReadUInt16Basic(stream, "Unknown integer", nItem, ref buffer);
+
+                            if(unk != 0xFFFF)
+                                SkipBasic(stream, "Unknown data", "", nItem, 4 + 4 * 8);
+                        }
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    ReadUInt32Basic(stream, "Unknown data", parent, ref buffer);
+
+                    break;
+                default:
+                    parent.Text = "Unknown data type";
+                    break;
+            }
         }
 
         string ParseChangeFlags(uint flags, ChangeFormType type)
@@ -581,7 +748,7 @@ namespace FileOptics.TESV
 
             foreach(uint flag in flagset)
                 if ((flags & flag) == flag)
-                    sb.AppendLine(Enum.GetName(flagenum, flag));
+                    sb.AppendLine(Enum.GetName(flagenum, (int)flag));
 
             return sb.ToString();
         }
@@ -681,11 +848,6 @@ namespace FileOptics.TESV
                 parent);
 
             return ret;
-        }
-
-        uint ReadVarLen()
-        {
-            return 0;
         }
 
         void ReadGlobalDataTable(Stream stream, TreeNode parent, uint num, uint count, ref byte[] buffer)
@@ -805,6 +967,110 @@ namespace FileOptics.TESV
             return ret;
         }
 
+        uint ReadUInt16Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        {
+            long pos = stream.Position;
+            uint ret = ReadUInt16(stream, ref ib);
+
+            Bridge.AppendNode(
+                new InfoNode(name, "int",
+                    InfoType.Generic,
+                    new GenericInfo(name, ret.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            return ret;
+        }
+
+        uint ReadUInt8Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        {
+            long pos = stream.Position;
+            uint ret = ReadUInt8(stream, ref ib);
+
+            Bridge.AppendNode(
+                new InfoNode(name, "byte",
+                    InfoType.Generic,
+                    new GenericInfo(name, ret.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            return ret;
+        }
+
+        float ReadFloatBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        {
+            long pos = stream.Position;
+            float ret = ReadFloat(stream, ref ib);
+
+            Bridge.AppendNode(
+                new InfoNode(name, "binary",
+                    InfoType.Generic,
+                    new GenericInfo(name, ret.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            return ret;
+        }
+
+        uint ReadVarLenBasic(Stream stream, string name, InfoNode parent, ref byte[] ib)
+        {
+            long pos = stream.Position;
+            uint ret = ReadVarLen(stream, ref ib);
+
+            Bridge.AppendNode(
+                new InfoNode(name, "binary",
+                    InfoType.Generic,
+                    new GenericInfo(name, ret.ToString()),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            return ret;
+        }
+
+        uint ReadVarLen(Stream stream, ref byte[] buffer)
+        {
+            if (stream.Read(buffer, 0, 1) != 1)
+                throw new Exception("Data ended earlier than expected.");
+
+            if ((buffer[0] & 0x03) == 0)
+                return (uint)(buffer[0] >> 2);
+            if ((buffer[0] & 0x03) == 1)
+            {
+                if (stream.Read(buffer, 1, 1) != 1)
+                    throw new Exception("Data ended earlier than expected.");
+                return (uint)(((uint)buffer[1] << 0x08 | (uint)buffer[0]) >> 2);
+            }
+            if ((buffer[0] & 0x03) == 2)
+            {
+                if (stream.Read(buffer, 1, 3) != 1)
+                    throw new Exception("Data ended earlier than expected.");
+                return (uint)(((uint)buffer[3] << 0x18 | (uint)buffer[2] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[0]) >> 2);
+            }
+            if ((buffer[0] & 0x03) == 3)
+            {
+                if (stream.Read(buffer, 1, 7) != 1)
+                    throw new Exception("Data ended earlier than expected.");
+
+                ulong val =
+                  (ulong)buffer[7] << 0x38
+                | (ulong)buffer[6] << 0x30
+                | (ulong)buffer[5] << 0x28
+                | (ulong)buffer[4] << 0x20
+                | (ulong)buffer[3] << 0x18
+                | (ulong)buffer[2] << 0x10
+                | (ulong)buffer[1] << 0x08
+                | (ulong)buffer[0];
+
+                return (uint)(val >> 2); ///TODO: Update signature to ULONG
+            }
+
+            return 0;
+        }
+
         uint ReadFormIDBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
@@ -838,6 +1104,14 @@ namespace FileOptics.TESV
                 throw new Exception("Data ended earlier than expected.");
 
             return (uint)buffer[0] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[2];
+        }
+
+        float ReadFloat(Stream stream, ref byte[] buffer)
+        {
+            if (stream.Read(buffer, 0, 4) != 4)
+                throw new Exception("Data ended earlier than expected.");
+
+            return FloatConverter.Convert((uint)buffer[3] << 0x18 | (uint)buffer[2] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[0]);
         }
 
         ulong ReadUInt64(Stream stream, ref byte[] buffer)

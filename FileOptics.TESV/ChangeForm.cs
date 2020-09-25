@@ -10,5 +10,10 @@ namespace FileOptics.TESV
     {
         public uint FormID, ChangeFlags;
         public ChangeFormType Type;
+
+        public bool HasFlag(ChangeFormFlagACHR flag)
+        {
+            return (ChangeFlags & (uint)flag) == (uint)flag;
+        }
     }
 }
