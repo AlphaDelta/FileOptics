@@ -694,6 +694,670 @@ namespace FileOptics.TESV
             }
         }
 
+        private void ReadExtraDataEntry(Stream stream, InfoNode parent, ref byte[] buffer)
+        {
+            uint extype = ReadUInt8Basic(stream, "Data type", parent, ref buffer);
+
+            uint count;
+            long pos;
+            switch (extype)
+            {
+                case 22:
+                    parent.Text = "Worn";
+                    break;
+                case 23:
+                    parent.Text = "WornLeft";
+                    break;
+                case 24:
+                    parent.Text = "PackageStartLocation";
+
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+
+                    break;
+                case 25:
+                    parent.Text = "Package";
+
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
+                    SkipBasic(stream, "Unknown data", "", parent, 3);
+
+                    break;
+                case 26:
+                    parent.Text = "TresPassPackage";
+
+                    uint id = ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+
+                    if (id > 0) { } ///TODO: EXTRA TresPassPackage
+
+                    break;
+                case 27:
+                    parent.Text = "RunOncePacks";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("Array item", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadUInt8Basic(stream, "Unknown byte", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    break;
+                case 28:
+                    parent.Text = "ReferenceHandle";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 29:
+                    parent.Text = "Unknown29";
+                    break;
+                case 30:
+                    parent.Text = "LevCreaModifier";
+                    ReadUInt32Basic(stream, "Mod", parent, ref buffer);
+                    break;
+                case 31:
+                    parent.Text = "Ghost";
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    break;
+                case 33:
+                    parent.Text = "Ownership";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 34:
+                    parent.Text = "Global";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 35:
+                    parent.Text = "Rank";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 36:
+                    parent.Text = "Count";
+                    ReadUInt16Basic(stream, "Count", parent, ref buffer);
+                    break;
+                case 37:
+                    parent.Text = "Health";
+                    ReadFloatBasic(stream, "Health", parent, ref buffer);
+                    break;
+                case 39:
+                    parent.Text = "TimeLeft";
+                    ReadUInt32Basic(stream, "Time", parent, ref buffer);
+                    break;
+                case 40:
+                    parent.Text = "Charge";
+                    ReadFloatBasic(stream, "Charge", parent, ref buffer);
+                    break;
+                case 42:
+                    parent.Text = "Lock";
+
+                    SkipBasic(stream, "Unknown data", "", parent, 2);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
+
+                    break;
+                case 43:
+                    parent.Text = "Teleport";
+
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+
+                    break;
+                case 44:
+                    parent.Text = "MapMarker";
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    break;
+                case 45:
+                    parent.Text = "LeveledCreature";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadUInt32Basic(stream, "NPC change flags", parent, ref buffer);
+                    break;
+                case 46:
+                    parent.Text = "LeveledItem";
+                    ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    break;
+                case 47:
+                    parent.Text = "Scale";
+                    ReadFloatBasic(stream, "Scale", parent, ref buffer);
+                    break;
+                case 49:
+                    parent.Text = "NonActorMagicCaster";
+
+                    pos = stream.Position;
+                    InfoNode nCaster = new InfoNode("NonActorMagicCasterData", "block-trueblue",
+                            InfoType.None,
+                            null,
+                            DataType.Critical,
+                            pos, 0);
+
+                    ReadUInt32Basic(stream, "Unknown int", nCaster, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", nCaster, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int", nCaster, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int", nCaster, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", nCaster, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", nCaster, ref buffer);
+
+                    nCaster.DataEnd = stream.Position - 1;
+                    Bridge.AppendNode(nCaster, parent);
+
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+
+                    break;
+                case 50:
+                    parent.Text = "NonActorMagicTarget";
+
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+
+                    pos = stream.Position;
+                    InfoNode nTarget = new InfoNode("NonActorMagicCasterData", "block-trueblue",
+                            InfoType.None,
+                            null,
+                            DataType.Critical,
+                            pos, 0);
+
+                    count = ReadVarLenBasic(stream, "Item count", nTarget, ref buffer);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("MagicTarget", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadUInt8Basic(stream, "Unknown byte", nItem, ref buffer);
+                        ReadVarLenBasic(stream, "Unknown vsval", nItem, ref buffer);
+                        uint datalength = ReadVarLenBasic(stream, "Data length", nItem, ref buffer);
+                        SkipBasic(stream, "Data", "", nItem, datalength);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, nTarget);
+                    }
+
+                    nTarget.DataEnd = stream.Position - 1;
+                    Bridge.AppendNode(nTarget, parent);
+
+                    break;
+                case 52:
+                    parent.Text = "PlayerCrimeList";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("Crime", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    break;
+                case 56:
+                    parent.Text = "ItemDropper";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 61:
+                    parent.Text = "CannotWear";
+                    break;
+                case 62:
+                    parent.Text = "ExtraPoison";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
+                    break;
+                case 68:
+                    parent.Text = "FriendHits";
+
+                    count = ReadVarLenBasic(stream, "Float count", parent, ref buffer);
+
+                    for (int i = 0; i < count; i++)
+                        ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+
+                    break;
+                case 69:
+                    parent.Text = "HeadingTarget";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 72:
+                    parent.Text = "StartingWorldOrCell";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 73:
+                    parent.Text = "Hotkey";
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    break;
+                case 76:
+                    parent.Text = "InfoGeneralTopic";
+                    ReadWStringBasic(stream, "Unknown string", parent, ref buffer);
+                    SkipBasic(stream, "Unknown data", "", parent, 5);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 77:
+                    parent.Text = "HasNoRumors";
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    break;
+                case 79:
+                    parent.Text = "TerminalState";
+                    SkipBasic(stream, "Unknown data", "", parent, 2);
+                    break;
+                case 83:
+                    parent.Text = "unknown83";
+                    ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
+                    break;
+                case 84:
+                    parent.Text = "CanTalkToPlayer";
+                    ReadUInt8Basic(stream, "Flag", parent, ref buffer);
+                    break;
+                case 85:
+                    parent.Text = "ObjectHealth";
+                    ReadFloatBasic(stream, "Health", parent, ref buffer);
+                    break;
+                case 88:
+                    parent.Text = "ModelSwap";
+                    ReadFormIDBasic(stream, "ModelID", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
+                    break;
+                case 89:
+                    parent.Text = "Radius";
+                    ReadUInt32Basic(stream, "Radius", parent, ref buffer);
+                    break;
+                case 91:
+                    parent.Text = "FactionChanges";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("Faction change", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadFormIDBasic(stream, "Faction ID", nItem, ref buffer);
+                        ReadSInt8Basic(stream, "Rank", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    ReadFormIDBasic(stream, "Faction ID 2", parent, ref buffer);
+                    ReadSInt8Basic(stream, "Rank 2", parent, ref buffer);
+
+                    break;
+                case 92:
+                    parent.Text = "DismemberedLimbs";
+
+                    ReadUInt16Basic(stream, "Unknown int16", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("DismemberedLimbData", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        SkipBasic(stream, "Unknown data", "", nItem, 4);
+                        uint count2 = ReadVarLenBasic(stream, "FormID count", nItem, ref buffer);
+                        
+                        for(int j = 0; j < count2; j++)
+                            ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    break;
+                case 93:
+                    parent.Text = "ActorCause";
+                    ReadUInt32Basic(stream, "Actor Cause ID", parent, ref buffer);
+                    break;
+                case 101:
+                    parent.Text = "CombatStyle";
+                    ReadFormIDBasic(stream, "Combat style", parent, ref buffer);
+                    break;
+                case 104:
+                    parent.Text = "OpenCloseActivateRef";
+                    ReadFormIDBasic(stream, "Ref ID", parent, ref buffer);
+                    break;
+                case 106:
+                    parent.Text = "Ammo";
+                    ReadFormIDBasic(stream, "Ammo ID", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Ammo count?", parent, ref buffer);
+                    break;
+                case 108:
+                    parent.Text = "PackageData";
+                    count = ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    if (count > 0) { } ///TODO: EXTRA PackageData
+                    break;
+                case 111:
+                    parent.Text = "SayTopicInfoOnceADay";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("Array item", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadFormIDBasic(stream, "Info ID", nItem, ref buffer);
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    break;
+                case 112:
+                    parent.Text = "EncounterZone";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 113:
+                    parent.Text = "SayToTopicInfo";
+
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("SayToTopicInfoData", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadWStringBasic(stream, "Text 1", nItem, ref buffer);
+                        ReadWStringBasic(stream, "Text 2", nItem, ref buffer);
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+                        ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    ReadUInt16Basic(stream, "Unknown int16", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+
+                    break;
+                case 120:
+                    parent.Text = "GuardedRefData";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("Array item", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+                        ReadUInt8Basic(stream, "Unknown byte", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    break;
+                case 133:
+                    parent.Text = "AshPileRef";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 135:
+                    parent.Text = "FollowerSwimBreadcrumbs";
+
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("Array item", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
+                        ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
+                        ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
+                        ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
+                        ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadUInt8Basic(stream, "Unknown byte", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    break;
+                case 136:
+                    parent.Text = "AliasInstanceArray";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("Array item", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    break;
+                case 140:
+                    parent.Text = "PromotedRef";
+
+                    count = ReadVarLenBasic(stream, "FormID count", parent, ref buffer);
+
+                    for (int j = 0; j < count; j++)
+                        ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+
+                    break;
+                case 142:
+                    parent.Text = "OutfitItem";
+                    ReadFormIDBasic(stream, "Item ID", parent, ref buffer);
+                    break;
+                case 146:
+                    parent.Text = "SceneData";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 149:
+                    parent.Text = "FromAlias";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
+                    break;
+                case 150:
+                    parent.Text = "ShouldWear";
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    break;
+                case 152:
+                    parent.Text = "AttachedArrows3D";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("AttachedArrows3DData", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        uint formid = ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        if (formid > 0)
+                        {
+                            uint unk = ReadUInt16Basic(stream, "Unknown integer", nItem, ref buffer);
+
+                            if(unk != 0xFFFF)
+                                SkipBasic(stream, "Unknown data", "", nItem, 4 + 4 * 8);
+                        }
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    ReadUInt32Basic(stream, "Unknown data", parent, ref buffer);
+
+                    break;
+                case 153:
+                    parent.Text = "TextDisplayData";
+
+                    uint fid1 = ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    uint fid2 = ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    int unks = ReadSInt32Basic(stream, "Unknown signed int32", parent, ref buffer);
+
+                    if(unks == -2 && fid1 == 0 && fid2 == 0)
+                        ReadWStringBasic(stream, "Text", parent, ref buffer);
+
+                    break;
+                case 155:
+                    parent.Text = "Enchantment";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadUInt16Basic(stream, "Unknown int16", parent, ref buffer);
+                    break;
+                case 156:
+                    parent.Text = "Soul";
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    break;
+                case 157:
+                    parent.Text = "ForcedTarget";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 159:
+                    parent.Text = "UniqueID";
+                    ReadUInt32Basic(stream, "ID 32", parent, ref buffer);
+                    ReadUInt16Basic(stream, "ID 16", parent, ref buffer);
+                    break;
+                case 160:
+                    parent.Text = "Flags";
+                    ReadUInt32Basic(stream, "Flags", parent, ref buffer);
+                    break;
+                case 161:
+                    parent.Text = "RefrPath";
+
+                    for (int i = 0; i < 3 * 6; i++)
+                        ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    for (int i = 0; i < 4; i++)
+                        ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
+
+                    break;
+                case 164:
+                    parent.Text = "ForcedLandingMarker";
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    break;
+                case 169:
+                    parent.Text = "Interaction";
+                    ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
+                    break;
+                default:
+                    parent.Text = "Unknown data type";
+                    break;
+            }
+        }
+
         string ParseChangeFlags(uint flags, ChangeFormType type)
         {
             StringBuilder sb = new StringBuilder();
