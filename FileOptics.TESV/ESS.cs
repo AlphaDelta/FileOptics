@@ -1352,6 +1352,46 @@ namespace FileOptics.TESV
                     ReadFormIDBasic(stream, "FormID", parent, ref buffer);
                     ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
                     break;
+                case 174:
+                    parent.Text = "GroupConstraint";
+                    ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
+                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadWStringBasic(stream, "String 1", parent, ref buffer);
+                    ReadWStringBasic(stream, "String 2", parent, ref buffer);
+                    for (int i = 0; i < 6; i++)
+                        ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
+                    ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
+                    break;
+                case 175:
+                    parent.Text = "ScriptedAnimDependence";
+
+                    count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
+
+                    pos = stream.Position;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nItem = new InfoNode("Array item", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
+
+                        nItem.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nItem, parent);
+                    }
+
+                    break;
+                case 176:
+                    parent.Text = "CachedScale";
+                    ReadFloatBasic(stream, "Scale 1", parent, ref buffer);
+                    ReadFloatBasic(stream, "Scale 2", parent, ref buffer);
+                    break;
                 default:
                     parent.Text = "Unknown data type";
                     break;
