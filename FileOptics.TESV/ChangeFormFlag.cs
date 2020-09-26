@@ -69,6 +69,7 @@ namespace FileOptics.TESV
     }
     public enum ChangeFormFlagREFR
     {
+        CHANGE_FORM_FLAGS = 0x00000001,
         CHANGE_REFR_MOVE = 0x00000002,
         CHANGE_REFR_HAVOK_MOVE = 0x00000004,
         CHANGE_REFR_CELL_CHANGED = 0x00000008,
@@ -92,6 +93,7 @@ namespace FileOptics.TESV
     }
     public enum ChangeFormFlagACHR
     {
+        CHANGE_FORM_FLAGS = 0x00000001,
         CHANGE_REFR_MOVE = 0x00000002,
         CHANGE_REFR_HAVOK_MOVE = 0x00000004,
         CHANGE_REFR_CELL_CHANGED = 0x00000008,
