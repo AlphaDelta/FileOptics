@@ -666,13 +666,13 @@ namespace FileOptics.TESV
             if ((form.ChangeFlags & hasextradata) != 0)
             {
                 pos = stream.Position;
-                InfoNode nRef = new InfoNode("EXTRA data array", "block-trueblue",
+                InfoNode nExtraBlock = new InfoNode("EXTRA data array", "block-trueblue",
                         InfoType.None,
                         null,
                         DataType.Critical,
                         pos, 0);
 
-                uint count = ReadVarLenBasic(stream, "Extra data count", nRef, ref buffer);
+                uint count = ReadVarLenBasic(stream, "Extra data count", nExtraBlock, ref buffer);
 
                 for (int i = 0; i < count; i++)
                 {
@@ -686,7 +686,68 @@ namespace FileOptics.TESV
                     ReadExtraDataEntry(stream, nExtra, ref buffer);
 
                     nExtra.DataEnd = stream.Position - 1;
-                    Bridge.AppendNode(nExtra, nRef);
+                    Bridge.AppendNode(nExtra, nExtraBlock);
+                }
+
+                nExtraBlock.DataEnd = stream.Position - 1;
+                Bridge.AppendNode(nExtraBlock, parent);
+            }
+            if (form.HasFlag(ChangeFormFlagACHR.CHANGE_REFR_INVENTORY) || form.HasFlag(ChangeFormFlagACHR.CHANGE_REFR_LEVELED_INVENTORY))
+            {
+                pos = stream.Position;
+                InfoNode nRef = new InfoNode("Inventory", "block-trueblue",
+                        InfoType.None,
+                        null,
+                        DataType.Critical,
+                        pos, 0);
+
+                uint count = ReadVarLenBasic(stream, "Item count", nRef, ref buffer);
+
+                for (int i = 0; i < count; i++)
+                {
+                    pos = stream.Position;
+                    InfoNode nItem = new InfoNode("Item", "block-trueblue",
+                            InfoType.None,
+                            null,
+                            DataType.Critical,
+                            pos, 0);
+
+                    uint itemid = ReadFormIDBasic(stream, "Item ID", nItem, ref buffer);
+                    ReadSInt32Basic(stream, "Item count (signed uint32)", nItem, ref buffer);
+
+                    uint excount = ReadVarLenBasic(stream, "Extra data array count", nItem, ref buffer);
+                    for (int j = 0; j < excount; j++)
+                    {
+                        pos = stream.Position;
+                        InfoNode nExtraBlock = new InfoNode("EXTRA data array", "block-trueblue",
+                                InfoType.None,
+                                null,
+                                DataType.Critical,
+                                pos, 0);
+
+                        uint exdatacount = ReadVarLenBasic(stream, "Extra data count", nExtraBlock, ref buffer);
+
+                        for (int k = 0; k < exdatacount; k++)
+                        {
+                            pos = stream.Position;
+                            InfoNode nExtra = new InfoNode("Extra data block", "block-trueblue",
+                                    InfoType.None,
+                                    null,
+                                    DataType.Critical,
+                                    pos, 0);
+
+                            ReadExtraDataEntry(stream, nExtra, ref buffer);
+
+                            nExtra.DataEnd = stream.Position - 1;
+                            Bridge.AppendNode(nExtra, nExtraBlock);
+                        }
+
+                        nExtraBlock.DataEnd = stream.Position - 1;
+                        Bridge.AppendNode(nExtraBlock, nItem);
+                    }
+
+                    nItem.DataEnd = stream.Position - 1;
+                    Bridge.AppendNode(nItem, nRef);
                 }
 
                 nRef.DataEnd = stream.Position - 1;
@@ -1051,8 +1112,8 @@ namespace FileOptics.TESV
 
                         SkipBasic(stream, "Unknown data", "", nItem, 4);
                         uint count2 = ReadVarLenBasic(stream, "FormID count", nItem, ref buffer);
-                        
-                        for(int j = 0; j < count2; j++)
+
+                        for (int j = 0; j < count2; j++)
                             ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
 
                         nItem.DataEnd = stream.Position - 1;
@@ -1288,7 +1349,7 @@ namespace FileOptics.TESV
                         {
                             uint unk = ReadUInt16Basic(stream, "Unknown integer", nItem, ref buffer);
 
-                            if(unk != 0xFFFF)
+                            if (unk != 0xFFFF)
                                 SkipBasic(stream, "Unknown data", "", nItem, 4 + 4 * 8);
                         }
 
@@ -1306,7 +1367,7 @@ namespace FileOptics.TESV
                     uint fid2 = ReadFormIDBasic(stream, "FormID", parent, ref buffer);
                     int unks = ReadSInt32Basic(stream, "Unknown signed int32", parent, ref buffer);
 
-                    if(unks == -2 && fid1 == 0 && fid2 == 0)
+                    if (unks == -2 && fid1 == 0 && fid2 == 0)
                         ReadWStringBasic(stream, "Text", parent, ref buffer);
 
                     break;
@@ -1407,7 +1468,7 @@ namespace FileOptics.TESV
             Type flagenum = ChangeFormFlagEnums.GetEnum(type);
             uint[] flagset = (uint[])Enum.GetValues(flagenum);
 
-            foreach(uint flag in flagset)
+            foreach (uint flag in flagset)
                 if ((flags & flag) == flag)
                     sb.AppendLine(Enum.GetName(flagenum, (int)flag));
 
