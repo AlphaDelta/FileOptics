@@ -572,6 +572,32 @@ namespace FileOptics.TESV
             /* Global data table 3 */
             ReadGlobalDataTable(stream, parent, 3, globalDataTable3Count, ref ib);
 
+            /* FormID array */
+            pos = stream.Position;
+            InfoNode nFIA = new InfoNode("FormID Array", "block",
+                    InfoType.None,
+                    null,
+                    DataType.Critical,
+                    pos, 0);
+
+            uint fidcount = ReadUInt32Basic(stream, "Array count", nFIA, ref ib); //broken???
+
+            {
+                int i = 0;
+                for (; i < fidcount && i < 10; i++)
+                    ReadFormIDBasic(stream, "FormID", nFIA, ref ib);
+                if (i < fidcount)
+                {
+                    uint skipcount = (uint)(fidcount - i) - 1;
+                    if(skipcount > 0)
+                        SkipBasic(stream, $"Skipping {skipcount} entries...", "", nFIA, skipcount * 3);
+                    ReadFormIDBasic(stream, "FormID", nFIA, ref ib);
+                }
+            }
+
+            nFIA.DataEnd = stream.Position - 1;
+            Bridge.AppendNode(nFIA, parent);
+
             return true;
         }
 
