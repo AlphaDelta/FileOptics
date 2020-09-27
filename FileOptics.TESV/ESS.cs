@@ -478,6 +478,7 @@ namespace FileOptics.TESV
                 int oi = i;
                 long opos = stream.Position;
                 int ACHR = 0;
+                bool ACHRwithBASEOBJECT = false, ACHRwithANIM = false;
                 for (; i < changeFormCount; i++)
                 {
                     pos = stream.Position;
@@ -491,7 +492,11 @@ namespace FileOptics.TESV
                     formcount[form.Type]++;
 
                     /* White list specific change forms against skipping */
-                    if (i < 3 || form.FormID == 0x400014 || (form.Type == ChangeFormType.ACHR && ACHR++ < 3))
+                    if (i < 3
+                        || form.FormID == 0x400014
+                        || (form.Type == ChangeFormType.ACHR && ACHR++ < 3)
+                        || (form.Type == ChangeFormType.ACHR && form.HasFlag(ChangeFormFlagACHR.CHANGE_REFR_BASEOBJECT) && !ACHRwithBASEOBJECT && (ACHRwithBASEOBJECT = true))
+                        )
                     {
                         if (i - oi > 1) //At this point if i - oi == 1, the previous record was accounted for in the structure tree, we didn't skip anything.
                             Bridge.AppendNode(
