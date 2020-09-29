@@ -478,7 +478,7 @@ namespace FileOptics.TESV
                 int oi = i;
                 long opos = stream.Position;
                 int ACHR = 0;
-                bool ACHRwithBASEOBJECT = false, ACHRwithANIM = false;
+                bool ACHRwithBASEOBJECT = false;
                 for (; i < changeFormCount; i++)
                 {
                     pos = stream.Position;
@@ -585,13 +585,13 @@ namespace FileOptics.TESV
             {
                 int i = 0;
                 for (; i < fidcount && i < 10; i++)
-                    ReadRefIDBasic(stream, "FormID", nFIA, ref ib);
+                    ReadFormIDBasic(stream, "FormID", nFIA, ref ib);
                 if (i < fidcount)
                 {
                     uint skipcount = (uint)(fidcount - i) - 1;
                     if(skipcount > 0)
-                        SkipBasic(stream, $"Skipping {skipcount} entries...", "", nFIA, skipcount * 3);
-                    ReadRefIDBasic(stream, "FormID", nFIA, ref ib);
+                        SkipBasic(stream, $"Skipping {skipcount} entries...", "", nFIA, skipcount * 4);
+                    ReadFormIDBasic(stream, "FormID", nFIA, ref ib);
                 }
             }
 
@@ -1889,6 +1889,22 @@ namespace FileOptics.TESV
             return ret;
         }
 
+        uint ReadFormIDBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        {
+            long pos = stream.Position;
+            uint ret = ReadFormID(stream, ref ib);
+
+            Bridge.AppendNode(
+                new InfoNode(name, "int",
+                    InfoType.Generic,
+                    new GenericInfo(name, $"{ret:X8}"),
+                    DataType.Critical,
+                    pos, stream.Position - 1),
+                parent);
+
+            return ret;
+        }
+
         private string ReadWString(Stream stream, ref byte[] ib)
         {
             int size = (int)ReadUInt16(stream, ref ib);
@@ -1906,6 +1922,11 @@ namespace FileOptics.TESV
                 throw new Exception("Data ended earlier than expected.");
 
             return (uint)buffer[0] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[2];
+        }
+
+        uint ReadFormID(Stream stream, ref byte[] buffer) //BIG ENDIAN
+        {
+            return ReadUInt32(stream, ref buffer);
         }
 
         float ReadFloat(Stream stream, ref byte[] buffer)
