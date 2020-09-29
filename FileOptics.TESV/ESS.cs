@@ -493,7 +493,7 @@ namespace FileOptics.TESV
 
                     /* White list specific change forms against skipping */
                     if (i < 3
-                        || form.FormID == 0x400014
+                        || form.RefID == 0x400014
                         || (form.Type == ChangeFormType.ACHR && ACHR++ < 3)
                         || (form.Type == ChangeFormType.ACHR && form.HasFlag(ChangeFormFlagACHR.CHANGE_REFR_BASEOBJECT) && !ACHRwithBASEOBJECT && (ACHRwithBASEOBJECT = true))
                         )
@@ -585,13 +585,13 @@ namespace FileOptics.TESV
             {
                 int i = 0;
                 for (; i < fidcount && i < 10; i++)
-                    ReadFormIDBasic(stream, "FormID", nFIA, ref ib);
+                    ReadRefIDBasic(stream, "FormID", nFIA, ref ib);
                 if (i < fidcount)
                 {
                     uint skipcount = (uint)(fidcount - i) - 1;
                     if(skipcount > 0)
                         SkipBasic(stream, $"Skipping {skipcount} entries...", "", nFIA, skipcount * 3);
-                    ReadFormIDBasic(stream, "FormID", nFIA, ref ib);
+                    ReadRefIDBasic(stream, "FormID", nFIA, ref ib);
                 }
             }
 
@@ -615,7 +615,7 @@ namespace FileOptics.TESV
                         DataType.Critical,
                         pos, 0);
 
-                ReadFormIDBasic(stream, "World cell", nRef, ref buffer);
+                ReadRefIDBasic(stream, "World cell", nRef, ref buffer);
                 ReadFloatBasic(stream, "Position 1 (X?)", nRef, ref buffer);
                 ReadFloatBasic(stream, "Position 2 (Y?)", nRef, ref buffer);
                 ReadFloatBasic(stream, "Position 3 (Z?)", nRef, ref buffer);
@@ -635,7 +635,7 @@ namespace FileOptics.TESV
                         DataType.Critical,
                         pos, 0);
 
-                ReadFormIDBasic(stream, "World cell", nRef, ref buffer);
+                ReadRefIDBasic(stream, "World cell", nRef, ref buffer);
                 ReadUInt16Basic(stream, "Unknown signed integer", nRef, ref buffer);
                 ReadUInt16Basic(stream, "Unknown signed integer", nRef, ref buffer);
 
@@ -743,7 +743,7 @@ namespace FileOptics.TESV
                             DataType.Critical,
                             pos, 0);
 
-                    uint itemid = ReadFormIDBasic(stream, "Item ID", nItem, ref buffer);
+                    uint itemid = ReadRefIDBasic(stream, "Item ID", nItem, ref buffer);
                     ReadSInt32Basic(stream, "Item count (signed uint32)", nItem, ref buffer);
 
                     uint excount = ReadVarLenBasic(stream, "Extra data array count", nItem, ref buffer);
@@ -803,7 +803,7 @@ namespace FileOptics.TESV
                 case 24:
                     parent.Text = "PackageStartLocation";
 
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
                     ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
                     ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
@@ -813,8 +813,8 @@ namespace FileOptics.TESV
                 case 25:
                     parent.Text = "Package";
 
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
                     SkipBasic(stream, "Unknown data", "", parent, 3);
 
@@ -822,7 +822,7 @@ namespace FileOptics.TESV
                 case 26:
                     parent.Text = "TresPassPackage";
 
-                    uint id = ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    uint id = ReadRefIDBasic(stream, "RefID", parent, ref buffer);
 
                     if (id > 0) { } ///TODO: EXTRA TresPassPackage
 
@@ -843,7 +843,7 @@ namespace FileOptics.TESV
                                 DataType.Critical,
                                 pos, 0);
 
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
                         ReadUInt8Basic(stream, "Unknown byte", nItem, ref buffer);
 
                         nItem.DataEnd = stream.Position - 1;
@@ -853,7 +853,7 @@ namespace FileOptics.TESV
                     break;
                 case 28:
                     parent.Text = "ReferenceHandle";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 29:
                     parent.Text = "Unknown29";
@@ -868,15 +868,15 @@ namespace FileOptics.TESV
                     break;
                 case 33:
                     parent.Text = "Ownership";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 34:
                     parent.Text = "Global";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 35:
                     parent.Text = "Rank";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 36:
                     parent.Text = "Count";
@@ -898,7 +898,7 @@ namespace FileOptics.TESV
                     parent.Text = "Lock";
 
                     SkipBasic(stream, "Unknown data", "", parent, 2);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
 
@@ -915,7 +915,7 @@ namespace FileOptics.TESV
                     ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
 
                     ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
 
                     break;
                 case 44:
@@ -924,8 +924,8 @@ namespace FileOptics.TESV
                     break;
                 case 45:
                     parent.Text = "LeveledCreature";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadUInt32Basic(stream, "NPC change flags", parent, ref buffer);
                     break;
                 case 46:
@@ -948,23 +948,23 @@ namespace FileOptics.TESV
                             pos, 0);
 
                     ReadUInt32Basic(stream, "Unknown int", nCaster, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", nCaster, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", nCaster, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int", nCaster, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int", nCaster, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", nCaster, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", nCaster, ref buffer);
                     ReadFloatBasic(stream, "Unknown float", nCaster, ref buffer);
 
                     nCaster.DataEnd = stream.Position - 1;
                     Bridge.AppendNode(nCaster, parent);
 
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
 
                     break;
                 case 50:
                     parent.Text = "NonActorMagicTarget";
 
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
 
                     pos = stream.Position;
                     InfoNode nTarget = new InfoNode("NonActorMagicCasterData", "block-trueblue",
@@ -984,7 +984,7 @@ namespace FileOptics.TESV
                                 DataType.Critical,
                                 pos, 0);
 
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
                         ReadUInt8Basic(stream, "Unknown byte", nItem, ref buffer);
                         ReadVarLenBasic(stream, "Unknown vsval", nItem, ref buffer);
                         uint datalength = ReadVarLenBasic(stream, "Data length", nItem, ref buffer);
@@ -1024,14 +1024,14 @@ namespace FileOptics.TESV
                     break;
                 case 56:
                     parent.Text = "ItemDropper";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 61:
                     parent.Text = "CannotWear";
                     break;
                 case 62:
                     parent.Text = "ExtraPoison";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
                     break;
                 case 68:
@@ -1045,11 +1045,11 @@ namespace FileOptics.TESV
                     break;
                 case 69:
                     parent.Text = "HeadingTarget";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 72:
                     parent.Text = "StartingWorldOrCell";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 73:
                     parent.Text = "Hotkey";
@@ -1059,10 +1059,10 @@ namespace FileOptics.TESV
                     parent.Text = "InfoGeneralTopic";
                     ReadWStringBasic(stream, "Unknown string", parent, ref buffer);
                     SkipBasic(stream, "Unknown data", "", parent, 5);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 77:
                     parent.Text = "HasNoRumors";
@@ -1086,7 +1086,7 @@ namespace FileOptics.TESV
                     break;
                 case 88:
                     parent.Text = "ModelSwap";
-                    ReadFormIDBasic(stream, "ModelID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "ModelID", parent, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int", parent, ref buffer);
                     break;
                 case 89:
@@ -1109,14 +1109,14 @@ namespace FileOptics.TESV
                                 DataType.Critical,
                                 pos, 0);
 
-                        ReadFormIDBasic(stream, "Faction ID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "Faction ID", nItem, ref buffer);
                         ReadSInt8Basic(stream, "Rank", nItem, ref buffer);
 
                         nItem.DataEnd = stream.Position - 1;
                         Bridge.AppendNode(nItem, parent);
                     }
 
-                    ReadFormIDBasic(stream, "Faction ID 2", parent, ref buffer);
+                    ReadRefIDBasic(stream, "Faction ID 2", parent, ref buffer);
                     ReadSInt8Basic(stream, "Rank 2", parent, ref buffer);
 
                     break;
@@ -1127,7 +1127,7 @@ namespace FileOptics.TESV
                     ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
                     ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
 
                     pos = stream.Position;
@@ -1142,10 +1142,10 @@ namespace FileOptics.TESV
                                 pos, 0);
 
                         SkipBasic(stream, "Unknown data", "", nItem, 4);
-                        uint count2 = ReadVarLenBasic(stream, "FormID count", nItem, ref buffer);
+                        uint count2 = ReadVarLenBasic(stream, "RefID count", nItem, ref buffer);
 
                         for (int j = 0; j < count2; j++)
-                            ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                            ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
 
                         nItem.DataEnd = stream.Position - 1;
                         Bridge.AppendNode(nItem, parent);
@@ -1158,15 +1158,15 @@ namespace FileOptics.TESV
                     break;
                 case 101:
                     parent.Text = "CombatStyle";
-                    ReadFormIDBasic(stream, "Combat style", parent, ref buffer);
+                    ReadRefIDBasic(stream, "Combat style", parent, ref buffer);
                     break;
                 case 104:
                     parent.Text = "OpenCloseActivateRef";
-                    ReadFormIDBasic(stream, "Ref ID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "Ref ID", parent, ref buffer);
                     break;
                 case 106:
                     parent.Text = "Ammo";
-                    ReadFormIDBasic(stream, "Ammo ID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "Ammo ID", parent, ref buffer);
                     ReadUInt32Basic(stream, "Ammo count?", parent, ref buffer);
                     break;
                 case 108:
@@ -1190,7 +1190,7 @@ namespace FileOptics.TESV
                                 DataType.Critical,
                                 pos, 0);
 
-                        ReadFormIDBasic(stream, "Info ID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "Info ID", nItem, ref buffer);
                         ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
                         ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
 
@@ -1201,15 +1201,15 @@ namespace FileOptics.TESV
                     break;
                 case 112:
                     parent.Text = "EncounterZone";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 113:
                     parent.Text = "SayToTopicInfo";
 
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
 
                     count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
 
@@ -1229,9 +1229,9 @@ namespace FileOptics.TESV
                         ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
                         ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
                         ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
                         ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
 
                         nItem.DataEnd = stream.Position - 1;
@@ -1239,10 +1239,10 @@ namespace FileOptics.TESV
                     }
 
                     ReadUInt16Basic(stream, "Unknown int16", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
 
                     break;
                 case 120:
@@ -1261,7 +1261,7 @@ namespace FileOptics.TESV
                                 DataType.Critical,
                                 pos, 0);
 
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
                         ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
                         ReadUInt8Basic(stream, "Unknown byte", nItem, ref buffer);
 
@@ -1272,7 +1272,7 @@ namespace FileOptics.TESV
                     break;
                 case 133:
                     parent.Text = "AshPileRef";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 135:
                     parent.Text = "FollowerSwimBreadcrumbs";
@@ -1280,7 +1280,7 @@ namespace FileOptics.TESV
                     ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
                     ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
                     ReadFloatBasic(stream, "Unknown float", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
 
                     count = ReadVarLenBasic(stream, "Item count", parent, ref buffer);
@@ -1299,11 +1299,11 @@ namespace FileOptics.TESV
                         ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
                         ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
                         ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
                         ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
                         ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
                         ReadFloatBasic(stream, "Unknown float", nItem, ref buffer);
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
                         ReadUInt8Basic(stream, "Unknown byte", nItem, ref buffer);
 
                         nItem.DataEnd = stream.Position - 1;
@@ -1327,7 +1327,7 @@ namespace FileOptics.TESV
                                 DataType.Critical,
                                 pos, 0);
 
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
                         ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
 
                         nItem.DataEnd = stream.Position - 1;
@@ -1338,23 +1338,23 @@ namespace FileOptics.TESV
                 case 140:
                     parent.Text = "PromotedRef";
 
-                    count = ReadVarLenBasic(stream, "FormID count", parent, ref buffer);
+                    count = ReadVarLenBasic(stream, "RefID count", parent, ref buffer);
 
                     for (int j = 0; j < count; j++)
-                        ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", parent, ref buffer);
 
                     break;
                 case 142:
                     parent.Text = "OutfitItem";
-                    ReadFormIDBasic(stream, "Item ID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "Item ID", parent, ref buffer);
                     break;
                 case 146:
                     parent.Text = "SceneData";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 149:
                     parent.Text = "FromAlias";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
                     break;
                 case 150:
@@ -1375,8 +1375,8 @@ namespace FileOptics.TESV
                                 DataType.Critical,
                                 pos, 0);
 
-                        uint formid = ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
-                        if (formid > 0)
+                        uint RefID = ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
+                        if (RefID > 0)
                         {
                             uint unk = ReadUInt16Basic(stream, "Unknown integer", nItem, ref buffer);
 
@@ -1394,8 +1394,8 @@ namespace FileOptics.TESV
                 case 153:
                     parent.Text = "TextDisplayData";
 
-                    uint fid1 = ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    uint fid2 = ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    uint fid1 = ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    uint fid2 = ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     int unks = ReadSInt32Basic(stream, "Unknown signed int32", parent, ref buffer);
 
                     if (unks == -2 && fid1 == 0 && fid2 == 0)
@@ -1404,7 +1404,7 @@ namespace FileOptics.TESV
                     break;
                 case 155:
                     parent.Text = "Enchantment";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadUInt16Basic(stream, "Unknown int16", parent, ref buffer);
                     break;
                 case 156:
@@ -1413,7 +1413,7 @@ namespace FileOptics.TESV
                     break;
                 case 157:
                     parent.Text = "ForcedTarget";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 159:
                     parent.Text = "UniqueID";
@@ -1435,19 +1435,19 @@ namespace FileOptics.TESV
                     break;
                 case 164:
                     parent.Text = "ForcedLandingMarker";
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     break;
                 case 169:
                     parent.Text = "Interaction";
                     ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadUInt8Basic(stream, "Unknown byte", parent, ref buffer);
                     break;
                 case 174:
                     parent.Text = "GroupConstraint";
                     ReadUInt32Basic(stream, "Unknown int32", parent, ref buffer);
-                    ReadFormIDBasic(stream, "FormID", parent, ref buffer);
+                    ReadRefIDBasic(stream, "RefID", parent, ref buffer);
                     ReadWStringBasic(stream, "String 1", parent, ref buffer);
                     ReadWStringBasic(stream, "String 2", parent, ref buffer);
                     for (int i = 0; i < 6; i++)
@@ -1471,7 +1471,7 @@ namespace FileOptics.TESV
                                 DataType.Critical,
                                 pos, 0);
 
-                        ReadFormIDBasic(stream, "FormID", nItem, ref buffer);
+                        ReadRefIDBasic(stream, "RefID", nItem, ref buffer);
                         ReadUInt32Basic(stream, "Unknown int32", nItem, ref buffer);
 
                         nItem.DataEnd = stream.Position - 1;
@@ -1508,7 +1508,7 @@ namespace FileOptics.TESV
 
         ChangeForm ReadChangeForm(Stream stream, TreeNode parent, ref byte[] buffer)
         {
-            uint formid = ReadFormIDBasic(stream, "Form ID", parent, ref buffer);
+            uint refid = ReadRefIDBasic(stream, "RefID", parent, ref buffer);
             uint changeflags = ReadChangeFormFlags(stream, "Change flags", parent, ref buffer);
 
             /* Type : uint8 */
@@ -1518,7 +1518,7 @@ namespace FileOptics.TESV
             int rtype = (int)(type & 0x3F);
 
             string typename = Enum.GetName(typeof(ChangeFormType), (ChangeFormType)rtype);
-            if (parent != null) parent.Text = formid == 0x400014 ? typename + " (Player)" : typename;
+            if (parent != null) parent.Text = refid == 0x400014 ? typename + " (Player)" : typename;
 
             string varlens = "uint8";
             if (varlen == 1) varlens = "uint16";
@@ -1580,7 +1580,7 @@ namespace FileOptics.TESV
             /* Data */
             SkipBasic(stream, "Change form data", "", parent, datalen);
 
-            ChangeForm ret = new ChangeForm() { FormID = formid, ChangeFlags = changeflags, Type = (ChangeFormType)rtype };
+            ChangeForm ret = new ChangeForm() { RefID = refid, ChangeFlags = changeflags, Type = (ChangeFormType)rtype };
             ((InfoNode)parent).SecondaryInfo.Add(ret);
 
             return ret;
@@ -1873,10 +1873,10 @@ namespace FileOptics.TESV
             return 0;
         }
 
-        uint ReadFormIDBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        uint ReadRefIDBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
-            uint ret = ReadFormID(stream, ref ib);
+            uint ret = ReadRefID(stream, ref ib);
 
             Bridge.AppendNode(
                 new InfoNode(name, "int",
@@ -1900,7 +1900,7 @@ namespace FileOptics.TESV
             return Encoding.ASCII.GetString(sb);
         }
 
-        uint ReadFormID(Stream stream, ref byte[] buffer) //BIG ENDIAN
+        uint ReadRefID(Stream stream, ref byte[] buffer) //BIG ENDIAN
         {
             if (stream.Read(buffer, 0, 3) != 3)
                 throw new Exception("Data ended earlier than expected.");

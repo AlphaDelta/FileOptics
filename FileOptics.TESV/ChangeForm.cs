@@ -8,7 +8,7 @@ namespace FileOptics.TESV
 {
     public class ChangeForm
     {
-        public uint FormID, ChangeFlags;
+        public uint RefID, ChangeFlags;
         public ChangeFormType Type;
 
         public bool HasFlag(ChangeFormFlagACHR flag)
