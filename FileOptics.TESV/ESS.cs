@@ -580,7 +580,7 @@ namespace FileOptics.TESV
                     DataType.Critical,
                     pos, 0);
 
-            uint fidcount = ReadUInt32Basic(stream, "Array count", nFIA, ref ib); //broken???
+            uint fidcount = ReadUInt32Basic(stream, "Array count", nFIA, ref ib);
 
             {
                 int i = 0;
@@ -597,6 +597,32 @@ namespace FileOptics.TESV
 
             nFIA.DataEnd = stream.Position - 1;
             Bridge.AppendNode(nFIA, parent);
+
+            /* Visited worldspace array */
+            pos = stream.Position;
+            InfoNode nVWA = new InfoNode("Visited Worldspace Array", "block",
+                    InfoType.None,
+                    null,
+                    DataType.Critical,
+                    pos, 0);
+
+            fidcount = ReadUInt32Basic(stream, "Array count", nVWA, ref ib);
+
+            {
+                int i = 0;
+                for (; i < fidcount && i < 10; i++)
+                    ReadFormIDBasic(stream, "FormID", nVWA, ref ib);
+                if (i < fidcount)
+                {
+                    uint skipcount = (uint)(fidcount - i) - 1;
+                    if (skipcount > 0)
+                        SkipBasic(stream, $"Skipping {skipcount} entries...", "", nVWA, skipcount * 4);
+                    ReadFormIDBasic(stream, "FormID", nVWA, ref ib);
+                }
+            }
+
+            nVWA.DataEnd = stream.Position - 1;
+            Bridge.AppendNode(nVWA, parent);
 
             return true;
         }
