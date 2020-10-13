@@ -589,7 +589,7 @@ namespace FileOptics.TESV
                 if (i < fidcount)
                 {
                     uint skipcount = (uint)(fidcount - i) - 1;
-                    if(skipcount > 0)
+                    if (skipcount > 0)
                         SkipBasic(stream, $"Skipping {skipcount} entries...", "", nFIA, skipcount * 4);
                     ReadFormIDBasic(stream, "FormID", nFIA, ref ib);
                 }
@@ -1658,6 +1658,7 @@ namespace FileOptics.TESV
             nGDT1.DataEnd = stream.Position - 1;
         }
 
+
         private void ReadGlobalDataEntry(Stream stream, TreeNode parent, ref byte[] buffer) { ReadGlobalDataEntry(stream, parent, "block-trueblue", ref buffer); }
         private void ReadGlobalDataEntry(Stream stream, TreeNode parent, string imgkey, ref byte[] buffer)
         {
@@ -1673,7 +1674,18 @@ namespace FileOptics.TESV
             nEntry.Text = GetGlobalDataTypeName(type);
             uint len = ReadUInt32Basic(stream, "Entry length", nEntry, ref buffer);
 
-            SkipBasic(stream, "Data", "", nEntry, len);
+            switch (type)
+            {
+                case 0:
+                    GlobalDataEntryReaders.MiscStatsEntryType(stream, nEntry, ref buffer);
+                    break;
+                case 3:
+                    GlobalDataEntryReaders.GlobalVariablesEntryType(stream, nEntry, ref buffer);
+                    break;
+                default:
+                    SkipBasic(stream, "Data", "", nEntry, len);
+                    break;
+            }
 
             nEntry.DataEnd = stream.Position - 1;
         }
@@ -1716,7 +1728,7 @@ namespace FileOptics.TESV
             }
         }
 
-        void SkipBasic(Stream stream, string name, string desc, TreeNode parent, uint amount)
+        public static void SkipBasic(Stream stream, string name, string desc, TreeNode parent, uint amount)
         {
             long pos = stream.Position;
             stream.Seek(amount, SeekOrigin.Current);
@@ -1730,7 +1742,7 @@ namespace FileOptics.TESV
                 parent);
         }
 
-        uint ReadUInt32Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        public static uint ReadUInt32Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             uint ret = ReadUInt32(stream, ref ib);
@@ -1746,7 +1758,7 @@ namespace FileOptics.TESV
             return ret;
         }
 
-        int ReadSInt32Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        public static int ReadSInt32Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             int ret = unchecked((int)ReadUInt32(stream, ref ib));
@@ -1762,7 +1774,7 @@ namespace FileOptics.TESV
             return ret;
         }
 
-        uint ReadUInt16Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        public static uint ReadUInt16Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             uint ret = ReadUInt16(stream, ref ib);
@@ -1778,7 +1790,7 @@ namespace FileOptics.TESV
             return ret;
         }
 
-        uint ReadUInt8Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        public static uint ReadUInt8Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             uint ret = ReadUInt8(stream, ref ib);
@@ -1795,7 +1807,7 @@ namespace FileOptics.TESV
         }
 
 
-        int ReadSInt8Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        public static int ReadSInt8Basic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             int ret = unchecked((int)ReadUInt8(stream, ref ib));
@@ -1811,7 +1823,7 @@ namespace FileOptics.TESV
             return ret;
         }
 
-        float ReadFloatBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        public static float ReadFloatBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             float ret = ReadFloat(stream, ref ib);
@@ -1827,7 +1839,7 @@ namespace FileOptics.TESV
             return ret;
         }
 
-        string ReadWStringBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        public static string ReadWStringBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             string ret = ReadWString(stream, ref ib);
@@ -1843,7 +1855,7 @@ namespace FileOptics.TESV
             return ret;
         }
 
-        uint ReadVarLenBasic(Stream stream, string name, InfoNode parent, ref byte[] ib)
+        public static uint ReadVarLenBasic(Stream stream, string name, InfoNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             uint ret = ReadVarLen(stream, ref ib);
@@ -1859,7 +1871,7 @@ namespace FileOptics.TESV
             return ret;
         }
 
-        uint ReadVarLen(Stream stream, ref byte[] buffer)
+        public static uint ReadVarLen(Stream stream, ref byte[] buffer)
         {
             if (stream.Read(buffer, 0, 1) != 1)
                 throw new Exception("Data ended earlier than expected.");
@@ -1899,7 +1911,7 @@ namespace FileOptics.TESV
             return 0;
         }
 
-        uint ReadRefIDBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        public static uint ReadRefIDBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             uint ret = ReadRefID(stream, ref ib);
@@ -1915,7 +1927,7 @@ namespace FileOptics.TESV
             return ret;
         }
 
-        uint ReadFormIDBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
+        public static uint ReadFormIDBasic(Stream stream, string name, TreeNode parent, ref byte[] ib)
         {
             long pos = stream.Position;
             uint ret = ReadFormID(stream, ref ib);
@@ -1931,7 +1943,7 @@ namespace FileOptics.TESV
             return ret;
         }
 
-        private string ReadWString(Stream stream, ref byte[] ib)
+        private static string ReadWString(Stream stream, ref byte[] ib)
         {
             int size = (int)ReadUInt16(stream, ref ib);
 
@@ -1942,7 +1954,7 @@ namespace FileOptics.TESV
             return Encoding.ASCII.GetString(sb);
         }
 
-        uint ReadRefID(Stream stream, ref byte[] buffer) //BIG ENDIAN
+        public static uint ReadRefID(Stream stream, ref byte[] buffer) //BIG ENDIAN
         {
             if (stream.Read(buffer, 0, 3) != 3)
                 throw new Exception("Data ended earlier than expected.");
@@ -1950,12 +1962,12 @@ namespace FileOptics.TESV
             return (uint)buffer[0] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[2];
         }
 
-        uint ReadFormID(Stream stream, ref byte[] buffer) //BIG ENDIAN
+        public static uint ReadFormID(Stream stream, ref byte[] buffer) //BIG ENDIAN
         {
             return ReadUInt32(stream, ref buffer);
         }
 
-        float ReadFloat(Stream stream, ref byte[] buffer)
+        public static float ReadFloat(Stream stream, ref byte[] buffer)
         {
             if (stream.Read(buffer, 0, 4) != 4)
                 throw new Exception("Data ended earlier than expected.");
@@ -1963,7 +1975,7 @@ namespace FileOptics.TESV
             return FloatConverter.Convert((uint)buffer[3] << 0x18 | (uint)buffer[2] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[0]);
         }
 
-        ulong ReadUInt64(Stream stream, ref byte[] buffer)
+        public static ulong ReadUInt64(Stream stream, ref byte[] buffer)
         {
             if (stream.Read(buffer, 0, 8) != 8)
                 throw new Exception("Data ended earlier than expected.");
@@ -1979,7 +1991,7 @@ namespace FileOptics.TESV
                 | (ulong)buffer[0];
         }
 
-        uint ReadUInt32(Stream stream, ref byte[] buffer)
+        public static uint ReadUInt32(Stream stream, ref byte[] buffer)
         {
             if (stream.Read(buffer, 0, 4) != 4)
                 throw new Exception("Data ended earlier than expected.");
@@ -1987,7 +1999,7 @@ namespace FileOptics.TESV
             return (uint)buffer[3] << 0x18 | (uint)buffer[2] << 0x10 | (uint)buffer[1] << 0x08 | (uint)buffer[0];
         }
 
-        uint ReadUInt16(Stream stream, ref byte[] buffer)
+        public static uint ReadUInt16(Stream stream, ref byte[] buffer)
         {
             if (stream.Read(buffer, 0, 2) != 2)
                 throw new Exception("Data ended earlier than expected.");
@@ -1995,7 +2007,7 @@ namespace FileOptics.TESV
             return (uint)buffer[1] << 0x08 | (uint)buffer[0];
         }
 
-        uint ReadUInt8(Stream stream, ref byte[] buffer)
+        public static uint ReadUInt8(Stream stream, ref byte[] buffer)
         {
             if (stream.Read(buffer, 0, 1) != 1)
                 throw new Exception("Data ended earlier than expected.");

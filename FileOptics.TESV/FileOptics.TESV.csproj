@@ -88,6 +88,8 @@
     <Compile Include="ChangeFormFlag.cs" />
     <Compile Include="ChangeFormType.cs" />
     <Compile Include="ESS.cs" />
+    <Compile Include="GlobalDataEntryReaders.cs" />
+    <Compile Include="MiscStatsEntryType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
