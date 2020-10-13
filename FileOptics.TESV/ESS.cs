@@ -810,6 +810,21 @@ namespace FileOptics.TESV
                 nRef.DataEnd = stream.Position - 1;
                 Bridge.AppendNode(nRef, parent);
             }
+            if (form.HasFlag(ChangeFormFlagACHR.CHANGE_REFR_ANIMATION))
+            {
+                pos = stream.Position;
+                InfoNode nRef = new InfoNode("CHANGE_REFR_ANIMATION", "block-trueblue",
+                        InfoType.None,
+                        null,
+                        DataType.Critical,
+                        pos, 0);
+
+                uint datalen = ReadVarLenBasic(stream, "Data length", nRef, ref buffer);
+                SkipBasic(stream, "Data", "", nRef, datalen);
+
+                nRef.DataEnd = stream.Position - 1;
+                Bridge.AppendNode(nRef, parent);
+            }
         }
 
         private void ReadExtraDataEntry(Stream stream, InfoNode parent, ref byte[] buffer)
